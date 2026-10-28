@@ -46,26 +46,7 @@
             return session;
           }
         }
-
-        // Default authoritative fallback session for ALITS Management Portal
-        const defaultSession = {
-          userId: 'vc_ramesh_naidu',
-          userName: 'Sri M. Ramesh Naidu',
-          role: 'Vice-Chairman',
-          portal: 'management',
-          employeeId: 'EXEC-002',
-          email: 'vc@alits.ac.in',
-          dept: 'Governing Body',
-          loginTime: new Date().toISOString(),
-          sessionToken: 'ALITS-MGT-SESSION-EXEC'
-        };
-
-        try {
-          sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(defaultSession));
-          localStorage.setItem('alits_portal_user', JSON.stringify(defaultSession));
-        } catch (e) { }
-
-        return defaultSession;
+        return null;
       } catch (e) {
         console.error('[AuthGuard] Failed to parse session:', e);
         return null;

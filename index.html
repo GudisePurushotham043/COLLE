@@ -10,6 +10,11 @@
 
     <!-- Central Auth Guard & Route Protection -->
     <script src="js/auth-guard.js"></script>
+    <script>
+        if (typeof AuthGuard !== 'undefined') {
+            AuthGuard.requireAuth('management');
+        }
+    </script>
 </head>
 
 <body class="theme-emerald">
