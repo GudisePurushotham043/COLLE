@@ -11,6 +11,13 @@
 
   <!-- Central Auth Guard & Route Protection -->
   <script src="../js/auth-guard.js"></script>
+  <script>
+    if (typeof AuthGuard !== 'undefined') {
+      if (!AuthGuard.requireAuth('faculty')) {
+        document.documentElement.style.display = 'none';
+      }
+    }
+  </script>
 </head>
 <body>
 

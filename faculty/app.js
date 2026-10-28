@@ -315,19 +315,9 @@ function updateFacultyApprovalsBadge() {
 async function initFacultyAuth() {
   let session = typeof AuthGuard !== 'undefined' ? AuthGuard.getSession() : null;
   if (!session) {
-    session = {
-      userId: 'AL00456',
-      userName: 'MS. A. Manjula, M.Tech, (Ph.D.)',
-      role: 'Faculty',
-      portal: 'faculty',
-      employeeId: 'AL00456',
-      email: 'manjula.cse@alits.ac.in',
-      dept: 'Computer Science & Engineering',
-      loginTime: new Date().toISOString(),
-      sessionToken: 'ALITS-FACULTY-ACTIVE-SESSION'
-    };
-    if (typeof AuthGuard !== 'undefined' && typeof AuthGuard.login === 'function') {
-      AuthGuard.login(session);
+    if (typeof AuthGuard !== 'undefined') {
+      AuthGuard.requireAuth('faculty');
+      return;
     }
   }
 

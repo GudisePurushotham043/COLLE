@@ -32,20 +32,35 @@
       try {
         let raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
         if (!raw) {
-          raw = localStorage.getItem(SESSION_STORAGE_KEY) || localStorage.getItem('alits_portal_user') || localStorage.getItem('alits_active_session');
-          if (raw) {
-            try {
-              sessionStorage.setItem(SESSION_STORAGE_KEY, raw);
-            } catch (e) { }
-          }
+          raw = localStorage.getItem(SESSION_STORAGE_KEY);
         }
 
         if (raw) {
           const session = JSON.parse(raw);
+          // Purge legacy auto-login mock session if present in browser cache
+          if (session && (
+            session.sessionToken === 'ALITS-MGT-SESSION-EXEC' ||
+            session.sessionToken === 'ALITS-FACULTY-ACTIVE-SESSION' ||
+            !session.sessionToken ||
+            typeof session.sessionToken !== 'string' ||
+            !session.sessionToken.startsWith('ALITS-AUTH-')
+          )) {
+            this.clearSession();
+            return null;
+          }
           if (session && session.sessionToken && session.role) {
             return session;
           }
         }
+
+        // Clean up legacy mock keys from browser storage
+        try {
+          localStorage.removeItem('alits_portal_user');
+          localStorage.removeItem('alits_active_session');
+          localStorage.removeItem('ALITS_LOGGED_IN');
+          localStorage.removeItem('ALITS_EXEC_SESSION');
+        } catch (e) { }
+
         return null;
       } catch (e) {
         console.error('[AuthGuard] Failed to parse session:', e);
@@ -185,15 +200,21 @@
      * Clear all session data from browser storage
      */
     clearSession: function () {
-      sessionStorage.removeItem(SESSION_STORAGE_KEY);
-      sessionStorage.removeItem('ALITS_LOGGED_IN');
-      sessionStorage.removeItem('ALITS_USER_ROLE');
-      sessionStorage.removeItem('ALITS_EXEC_SESSION');
-      sessionStorage.removeItem('ALITS_FACULTY_SESSION');
-      sessionStorage.removeItem('ALITS_TARGET_VIEW');
-      sessionStorage.removeItem('alits_current_token');
-      localStorage.removeItem('alits_portal_user');
-      localStorage.removeItem('alits_active_session');
+      try {
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        sessionStorage.removeItem('ALITS_LOGGED_IN');
+        sessionStorage.removeItem('ALITS_USER_ROLE');
+        sessionStorage.removeItem('ALITS_EXEC_SESSION');
+        sessionStorage.removeItem('ALITS_FACULTY_SESSION');
+        sessionStorage.removeItem('ALITS_TARGET_VIEW');
+        sessionStorage.removeItem('alits_current_token');
+        localStorage.removeItem(SESSION_STORAGE_KEY);
+        localStorage.removeItem(REMEMBER_STORAGE_KEY);
+        localStorage.removeItem('alits_portal_user');
+        localStorage.removeItem('alits_active_session');
+        localStorage.removeItem('ALITS_LOGGED_IN');
+        localStorage.removeItem('ALITS_EXEC_SESSION');
+      } catch (e) { }
     },
 
     /**

@@ -12,7 +12,9 @@
     <script src="js/auth-guard.js"></script>
     <script>
         if (typeof AuthGuard !== 'undefined') {
-            AuthGuard.requireAuth('management');
+            if (!AuthGuard.requireAuth('management')) {
+                document.documentElement.style.display = 'none';
+            }
         }
     </script>
 </head>
