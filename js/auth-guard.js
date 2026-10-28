@@ -18,7 +18,7 @@
   };
 
   const PORTAL_PATHS = {
-    management: 'index.html',
+    management: 'dashboard.html',
     student: 'student/index.html',
     faculty: 'faculty/index.html'
   };
@@ -109,7 +109,7 @@
       const session = this.getSession();
       const currentPath = window.location.pathname;
       const isInSubdir = currentPath.includes('/student/') || currentPath.includes('/faculty/') || currentPath.includes('/staff/');
-      const authPath = isInSubdir ? '../auth.html' : 'auth.html';
+      const authPath = isInSubdir ? '../index.html' : 'index.html';
 
       // 1. Check if authenticated
       if (!session || !session.sessionToken) {
@@ -190,7 +190,7 @@
       this.clearSession();
       const currentPath = window.location.pathname;
       const isInSubdir = currentPath.includes('/student/') || currentPath.includes('/faculty/') || currentPath.includes('/staff/');
-      const authPath = isInSubdir ? '../auth.html' : 'auth.html';
+      const authPath = isInSubdir ? '../index.html' : 'index.html';
       
       // Use replace to prevent back button from reopening the page
       window.location.replace(`${authPath}?msg=logged_out`);
@@ -248,7 +248,7 @@
         window.location.href = dest;
       } else {
         // Otherwise redirect to auth page with target portal parameter
-        const authUrl = `${prefix}auth.html?portal=${encodeURIComponent(targetPortal.toLowerCase())}`;
+        const authUrl = `${prefix}index.html?portal=${encodeURIComponent(targetPortal.toLowerCase())}`;
         window.location.href = authUrl;
       }
     }
