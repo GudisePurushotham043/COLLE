@@ -1,0 +1,956 @@
+/* ==========================================================================
+   ALITS FACULTY PORTAL - DESIGN SYSTEM & STYLESHEET
+   Deep Forest Green (#0F3D26) + Royal Gold (#D4AF37)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --primary: #0F3D26;
+  --primary-deep: #082315;
+  --primary-light: #165636;
+  --primary-subtle: #eaf3ed;
+  
+  --gold: #D4AF37;
+  --gold-dark: #B8860B;
+  --gold-light: #FBF4DB;
+  --gold-glow: rgba(212, 175, 55, 0.3);
+  
+  --bg-main: #F4F6F9;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F8FAFC;
+  --text-main: #1E293B;
+  --text-muted: #64748B;
+  --text-heading: #0F3D26;
+  
+  --border: #E2E8F0;
+  --border-gold: rgba(212, 175, 55, 0.35);
+  
+  --success: #10B981;
+  --success-bg: #ECFDF5;
+  --warning: #F59E0B;
+  --warning-bg: #FFFBEB;
+  --danger: #EF4444;
+  --danger-bg: #FEF2F2;
+  --info: #3B82F6;
+  --info-bg: #EFF6FF;
+
+  --shadow-sm: 0 2px 6px rgba(15, 61, 38, 0.05);
+  --shadow-md: 0 6px 18px rgba(15, 61, 38, 0.08);
+  --shadow-lg: 0 14px 34px rgba(15, 61, 38, 0.12);
+  --radius: 12px;
+  --radius-sm: 6px;
+  --radius-pill: 9999px;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --bg-main: #0B1410;
+  --bg-card: #121F19;
+  --bg-subtle: #172820;
+  --text-main: #E2E8F0;
+  --text-muted: #94A3B8;
+  --text-heading: #F1F5F9;
+  --border: #1E382B;
+  --border-gold: rgba(212, 175, 55, 0.3);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.6);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Faculty Portal Header */
+.faculty-header {
+  background: linear-gradient(135deg, var(--primary-deep) 0%, var(--primary) 100%);
+  color: #ffffff;
+  border-bottom: 3px solid var(--gold);
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-top {
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: white;
+}
+
+.brand-logo-crest {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: #ffffff;
+  padding: 2px;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.brand-tagline {
+  font-size: 11.5px;
+  color: var(--gold-light);
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-portal-pill {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--gold);
+  background: rgba(212, 175, 55, 0.15);
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.btn-portal-pill:hover {
+  background: var(--gold);
+  color: var(--primary-deep);
+  transform: translateY(-1px);
+}
+
+.btn-theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--gold-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+/* Faculty Hero Profile Bar */
+.faculty-hero-bar {
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.faculty-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.faculty-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: var(--primary-deep);
+  font-weight: 800;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 14px var(--gold-glow);
+}
+
+.faculty-meta h2 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.faculty-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.meta-chip {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--gold-light);
+}
+
+.faculty-quick-kpis {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.quick-kpi {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.quick-kpi-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.quick-kpi-lbl {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Navigation Tabs */
+.faculty-nav-tabs {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tab-btn {
+  padding: 12px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: var(--primary);
+}
+
+.tab-btn.active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gold);
+  border-radius: 3px 3px 0 0;
+}
+
+/* Main Container */
+.faculty-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px;
+  width: 100%;
+  flex: 1;
+}
+
+/* Card System */
+.portal-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 20px;
+  transition: var(--transition);
+}
+
+.portal-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  padding: 16px 20px;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-heading);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Metric Widget */
+.metric-widget {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-widget::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--gold);
+}
+
+.metric-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-subtle);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.metric-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.metric-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-heading);
+  line-height: 1.2;
+}
+
+.metric-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Grid Layouts */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: 1fr; }
+  .faculty-hero-bar { flex-direction: column; align-items: flex-start; }
+}
+
+/* Tables */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.custom-table th {
+  background: var(--bg-subtle);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-heading);
+  border-bottom: 2px solid var(--border);
+}
+
+.custom-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-main);
+}
+
+.custom-table tr:hover td {
+  background: var(--primary-subtle);
+}
+
+/* Attendance Toggle Controls */
+.att-toggle-btn {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border);
+  background: #ffffff;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.att-toggle-btn.present {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.att-toggle-btn.absent {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.att-toggle-btn.od {
+  background: var(--warning-bg);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+/* Badges & Tags */
+.badge {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-warning { background: var(--warning-bg); color: var(--warning); }
+.badge-danger { background: var(--danger-bg); color: var(--danger); }
+.badge-info { background: var(--info-bg); color: var(--info); }
+.badge-gold { background: var(--gold-light); color: var(--gold-dark); border: 1px solid var(--gold); }
+
+/* Buttons */
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+  border: 1px solid var(--gold);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.btn-primary:hover {
+  background: var(--primary-light);
+  box-shadow: 0 4px 12px rgba(15, 61, 38, 0.2);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-outline:hover {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+/* Modals */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.modal-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-box {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  max-width: 650px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-gold);
+}
+
+.modal-header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, var(--primary-deep) 0%, var(--primary) 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+/* Form Controls */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text-heading);
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 13.5px;
+  transition: var(--transition);
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+}
+
+/* Academic Selection Section */
+.acad-selector-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 22px;
+  overflow: hidden;
+}
+
+.acad-selector-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.acad-selector-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-heading);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acad-selector-body {
+  padding: 18px 20px;
+}
+
+.acad-grid-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  align-items: flex-end;
+}
+
+@media (max-width: 1024px) {
+  .acad-grid-5 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .acad-grid-5 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.acad-input-box {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.acad-input-box:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.acad-divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 18px 0 16px 0;
+}
+
+.btn-get-data {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 32px;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-get-data:hover {
+  background: #1d4ed8;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-get-data:active {
+  transform: translateY(0);
+}
+
+
+/* Toast */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast-item {
+  background: var(--primary-deep);
+  color: white;
+  border-left: 4px solid var(--gold);
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  font-size: 13.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ==========================================================================
+   NATURAL BOTANICAL & EARTHY TIMETABLE THEME
+   ========================================================================== */
+.timetable-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.timetable-grid-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 4px;
+  text-align: center;
+  font-size: 12.5px;
+  background: transparent;
+}
+
+.timetable-grid-table th {
+  background: linear-gradient(135deg, #133926 0%, #1e4d35 50%, #163e2a 100%) !important;
+  color: #fef3c7 !important;
+  padding: 10px 6px;
+  font-weight: 700;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+.timetable-grid-table td {
+  padding: 9px 5px;
+  border-radius: 7px;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+.timetable-grid-table tr:hover td {
+  filter: brightness(1.08);
+}
+
+/* Day Header Cell (Natural Bamboo / Warm Sandstone) */
+.tt-day {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.14) 0%, rgba(180, 83, 9, 0.08) 100%) !important;
+  color: #f59e0b !important;
+  font-weight: 800 !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+  font-size: 13px !important;
+  letter-spacing: 0.5px;
+}
+
+/* Interval Columns (Natural River Stone / Slate) */
+.tt-break {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+  color: #94a3b8 !important;
+  font-weight: 800 !important;
+  font-size: 11px !important;
+  writing-mode: vertical-lr;
+  letter-spacing: 3px;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+.tt-lunch {
+  background: linear-gradient(180deg, rgba(42, 33, 20, 0.85) 0%, rgba(20, 30, 24, 0.95) 100%) !important;
+  color: #fbbf24 !important;
+  font-weight: 800 !important;
+  font-size: 11px !important;
+  writing-mode: vertical-lr;
+  letter-spacing: 3px;
+  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+}
+
+/* Specific High-Contrast LAB Block */
+.lab-block {
+  background: #f59e0b !important;
+  color: #111827 !important;
+  border: 2px solid #000 !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
+.lab-block strong, .lab-block .sub-name {
+  color: #111827 !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
+.lab-block small, .lab-block .sub-meta {
+  color: #1f2937 !important;
+  font-weight: 700 !important;
+}
+
+/* Natural Organic Subject Colors */
+/* 1. ATCD - Fresh Meadow Sage / Lush Forest Emerald (Ms. A. Manjula) */
+.tt-subject-atcd {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.18) 0%, rgba(22, 101, 52, 0.26) 100%) !important;
+  border: 1px solid rgba(74, 222, 128, 0.38) !important;
+  box-shadow: inset 0 0 10px rgba(34, 197, 94, 0.08);
+}
+.tt-subject-atcd strong { color: #4ade80 !important; font-weight: 800; }
+.tt-subject-atcd small { color: #86efac !important; font-weight: 600; }
+
+/* 2. AI & AI LAB - Warm Terracotta Clay / Autumn Sunset Amber (Ms. C. Sravani) */
+.tt-subject-ai {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.16) 0%, rgba(194, 65, 12, 0.24) 100%) !important;
+  border: 1px solid rgba(251, 146, 60, 0.35) !important;
+  box-shadow: inset 0 0 10px rgba(249, 115, 22, 0.08);
+}
+.tt-subject-ai strong { color: #fb923c !important; font-weight: 800; }
+.tt-subject-ai small { color: #fed7aa !important; font-weight: 600; }
+
+/* 3. OOAD - Wild Mountain Orchid / Lavender Dusk (Dr. K. Bhargavi) */
+.tt-subject-ooad {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.16) 0%, rgba(126, 34, 206, 0.24) 100%) !important;
+  border: 1px solid rgba(192, 132, 252, 0.35) !important;
+  box-shadow: inset 0 0 10px rgba(168, 85, 247, 0.08);
+}
+.tt-subject-ooad strong { color: #c084fc !important; font-weight: 800; }
+.tt-subject-ooad small { color: #e9d5ff !important; font-weight: 600; }
+
+/* 4. CNIP & CNIP LAB - Deep Ocean Mineral / Azure Lagoon (Mr. A. Rajesh) */
+.tt-subject-cnip {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.16) 0%, rgba(3, 105, 161, 0.24) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: inset 0 0 10px rgba(14, 165, 233, 0.08);
+}
+.tt-subject-cnip strong { color: #38bdf8 !important; font-weight: 800; }
+.tt-subject-cnip small { color: #bae6fd !important; font-weight: 600; }
+
+/* 5. IQTA - Misty Coastal Sky / Soft Morning Blue (Ms. P. Chandana) */
+.tt-subject-iqta {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.16) 0%, rgba(67, 56, 202, 0.24) 100%) !important;
+  border: 1px solid rgba(129, 140, 248, 0.35) !important;
+  box-shadow: inset 0 0 10px rgba(99, 102, 241, 0.08);
+}
+.tt-subject-iqta strong { color: #818cf8 !important; font-weight: 800; }
+.tt-subject-iqta small { color: #c7d2fe !important; font-weight: 600; }
+
+/* 6. GB - Botanical Eucalyptus / Mountain Pine Jade (Ms. Vidhya) */
+.tt-subject-gb {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.16) 0%, rgba(15, 118, 110, 0.24) 100%) !important;
+  border: 1px solid rgba(45, 212, 191, 0.35) !important;
+  box-shadow: inset 0 0 10px rgba(20, 184, 166, 0.08);
+}
+.tt-subject-gb strong { color: #2dd4bf !important; font-weight: 800; }
+.tt-subject-gb small { color: #99f6e4 !important; font-weight: 600; }
+
+/* 7. SH / SII - Rose Quartz / Blossom Clay */
+.tt-subject-sh {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.16) 0%, rgba(190, 24, 93, 0.24) 100%) !important;
+  border: 1px solid rgba(244, 114, 182, 0.35) !important;
+  box-shadow: inset 0 0 10px rgba(236, 72, 153, 0.08);
+}
+.tt-subject-sh strong { color: #f472b6 !important; font-weight: 800; }
+.tt-subject-sh small { color: #fbcfe8 !important; font-weight: 600; }
+
+/* 8. LIB - Sandalwood / Parchment Taupe */
+.tt-subject-lib {
+  background: linear-gradient(135deg, rgba(168, 162, 158, 0.14) 0%, rgba(120, 113, 108, 0.22) 100%) !important;
+  border: 1px solid rgba(214, 211, 209, 0.25) !important;
+}
+.tt-subject-lib strong { color: #e7e5e4 !important; font-weight: 800; }
+.tt-subject-lib small { color: #d6d3d1 !important; }
+
+/* 9. SPORTS - Golden Sunflower / Honey Amber */
+.tt-subject-sports {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.16) 0%, rgba(180, 83, 9, 0.24) 100%) !important;
+  border: 1px solid rgba(250, 204, 21, 0.35) !important;
+  box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.08);
+}
+.tt-subject-sports strong { color: #facc15 !important; font-weight: 800; }
+.tt-subject-sports small { color: #fef08a !important; }
+

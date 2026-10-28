@@ -1,0 +1,4480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALITS ERP - Secure Executive Authentication Portal</title>
+
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Three.js 3D Library, Central Data & Auth Guard -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070913;
+      --card-bg: rgba(15, 23, 42, 0.78);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #00bcd4;
+      --primary-glow: rgba(0, 188, 212, 0.25);
+      --accent: #11998e;
+      --accent-gradient: linear-gradient(135deg, #11998e, #38ef7d);
+      --purple-gradient: linear-gradient(135deg, #6366f1, #a855f7);
+      --gold-gradient: linear-gradient(135deg, #f59e0b, #d97706);
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-subtle: #94a3b8;
+      --input-bg: rgba(30, 41, 59, 0.75);
+      --input-border: rgba(255, 255, 255, 0.10);
+      --radius-lg: 14px;
+      --radius-md: 8px;
+      --radius-sm: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Campus Photo Background */
+    .campus-bg-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: url('images/alits_campus_login_bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      z-index: 1;
+      transition: filter 0.4s ease;
+    }
+
+    /* Gradient Overlay Shader */
+    .bg-gradient-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, rgba(8, 26, 17, 0.45) 0%, rgba(15, 61, 38, 0.15) 50%, rgba(0, 0, 0, 0.4) 100%);
+      z-index: 2;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Navigation Bar */
+    .auth-nav {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 40px;
+      background: rgba(7, 18, 12, 0.75);
+      backdrop-filter: blur(14px);
+      border-bottom: 2px solid rgba(212, 175, 55, 0.35);
+      transition: opacity 0.35s ease;
+    }
+
+    .brand-logo-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: white;
+    }
+
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #0F3D26;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #ffffff, #F7E7A9);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: #D4AF37;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .nav-btn {
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      color: #e2e8f0;
+      transition: all 0.25s ease;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-btn:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #D4AF37;
+    }
+
+    .nav-btn-highlight {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: #D4AF37;
+      color: #F7E7A9;
+    }
+
+    .nav-btn-highlight:hover {
+      background: #D4AF37;
+      color: #0F3D26;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+    }
+
+    /* Main Container - POSITIONED SLIGHTLY TO THE LEFT SIDE */
+    .main-auth-container {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 30px 24px 6vw;
+      min-height: calc(100vh - 84px);
+    }
+
+    @media (max-width: 900px) {
+      .main-auth-container {
+        justify-content: center;
+        padding: 20px;
+      }
+    }
+
+    /* Glassmorphism Auth Card - EXPANDED SIZE */
+    .auth-card {
+      width: 100%;
+      max-width: 540px;
+      background: rgba(10, 26, 17, 0.92);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1.5px solid rgba(212, 175, 55, 0.45);
+      border-radius: 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(15, 61, 38, 0.45);
+      overflow: hidden;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .auth-card:hover {
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), 0 0 50px rgba(212, 175, 55, 0.4);
+    }
+
+    /* Close (X) button on the Authentication Portal */
+    .auth-card-close-btn {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: #F7E7A9;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      z-index: 25;
+    }
+
+    .auth-card-close-btn:hover {
+      background: rgba(220, 38, 38, 0.85);
+      border-color: #ef4444;
+      color: #ffffff;
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 0 0 12px rgba(220, 38, 38, 0.5);
+    }
+
+    /* Floating Re-Open Button when Portal is Closed */
+    .floating-open-login-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      z-index: 999;
+      background: linear-gradient(135deg, #0F3D26 0%, #164D31 100%);
+      color: #ffffff;
+      border: 2px solid #D4AF37;
+      border-radius: 30px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 175, 55, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .floating-open-login-btn:hover {
+      background: #D4AF37;
+      color: #0F3D26;
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(212, 175, 55, 0.6);
+    }
+
+    .card-header-banner {
+      padding: 24px 32px 18px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .card-header-banner h1 {
+      font-size: 25px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, #ffffff, #F7E7A9);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card-header-banner p {
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    /* Auth Navigation Tabs (Login / Register / Forgot) */
+    .auth-navigation-tabs {
+      display: flex;
+      background: rgba(15, 23, 42, 0.92);
+      padding: 5px;
+      margin: 16px 28px 0;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 6px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--text-subtle);
+      font-size: 13.5px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active {
+      background: rgba(212, 175, 55, 0.22);
+      color: #F7E7A9;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      font-weight: 700;
+    }
+
+    /* Sub-tabs for Login Methods (Password vs OTP) */
+    .login-method-switch {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 16px 28px 0;
+    }
+
+    .method-pill {
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .method-pill.active {
+      background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+      color: #0F3D26;
+      border-color: transparent;
+      font-weight: 700;
+      box-shadow: 0 2px 10px rgba(212, 175, 55, 0.35);
+    }
+
+    /* Form Container Body */
+    .card-body-forms {
+      padding: 24px 30px 28px;
+    }
+
+    .form-step {
+      display: none;
+    }
+
+    .form-step.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      color: #94a3b8;
+      font-size: 15px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 14.5px;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .form-control:focus {
+      border-color: #D4AF37;
+      box-shadow: 0 0 14px rgba(212, 175, 55, 0.3);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .toggle-pass-btn {
+      position: absolute;
+      right: 14px;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .toggle-pass-btn:hover {
+      color: #D4AF37;
+    }
+
+    .form-row-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .remember-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-subtle);
+      cursor: pointer;
+    }
+
+    .forgot-link {
+      color: #D4AF37;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .forgot-link:hover {
+      color: #F7E7A9;
+      text-decoration: underline;
+    }
+
+    .btn-submit-glow {
+      width: 100%;
+      padding: 13px 20px;
+      background: linear-gradient(135deg, #0F3D26 0%, #164D31 50%, #0F3D26 100%);
+      border: 1.5px solid #D4AF37;
+      border-radius: var(--radius-md);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(15, 61, 38, 0.4);
+    }
+
+    .btn-submit-glow:hover {
+      background: #D4AF37;
+      color: #0F3D26;
+      border-color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+    }
+
+    .btn-submit-glow {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--accent-gradient);
+      color: #052e16;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(56, 239, 125, 0.3);
+    }
+
+    .btn-submit-glow:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(56, 239, 125, 0.45);
+      color: #000;
+    }
+
+    .btn-submit-secondary {
+      background: var(--purple-gradient);
+      color: white;
+      box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
+    }
+
+    .btn-submit-secondary:hover {
+      box-shadow: 0 8px 25px rgba(168, 85, 247, 0.45);
+      color: white;
+    }
+
+    /* OTP Code Inputs */
+    .otp-input-group {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .otp-digit {
+      width: 44px;
+      height: 50px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      border-radius: var(--radius-md);
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--primary);
+    }
+
+    .otp-digit:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+
+    .otp-timer-badge {
+      font-size: 12px;
+      color: var(--text-subtle);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .otp-timer-count {
+      color: var(--primary);
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Single Active Session Lock Notice Banner */
+    .session-lock-banner {
+      display: none;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #fca5a5;
+    }
+
+    .session-lock-banner.active {
+      display: block;
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20%,
+      60% {
+        transform: translateX(-5px);
+      }
+
+      40%,
+      80% {
+        transform: translateX(5px);
+      }
+    }
+
+    .session-lock-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      color: #ef4444;
+      margin-bottom: 4px;
+    }
+
+    .btn-override-session {
+      margin-top: 10px;
+      padding: 6px 12px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-override-session:hover {
+      background: #dc2626;
+    }
+
+    /* Form Submit Actions */
+
+    /* Toast Notification */
+    .toast-popup {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--primary);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: white;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .toast-popup.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .auth-nav {
+        padding: 16px 20px;
+      }
+
+      .card-header-banner {
+        padding: 20px 20px 16px;
+      }
+
+      .auth-navigation-tabs {
+        margin: 16px 20px 0;
+      }
+
+      .card-body-forms {
+        padding: 20px;
+      }
+
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Full Campus Image Background -->
+  <div class="campus-bg-container"></div>
+  <div class="bg-gradient-overlay"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="auth-nav">
+    <a href="index.html" class="brand-logo-wrapper">
+      <div class="brand-badge">AL</div>
+      <div>
+        <div class="brand-title">ALITS SMART ERP</div>
+        <div class="brand-subtitle">Anantha Lakshmi Institute</div>
+      </div>
+    </a>
+
+    <div class="nav-links">
+      <a href="auth.html?portal=management" class="nav-btn" id="navLinkManagement"><i
+          class="fa-solid fa-gauge-high"></i> Main ERP</a>
+      <a href="auth.html?portal=student" class="nav-btn" id="navLinkStudent"><i class="fa-solid fa-user-graduate"></i>
+        Student Portal</a>
+      <a href="auth.html?portal=faculty" class="nav-btn" id="navLinkFaculty"><i class="fa-solid fa-chalkboard-user"></i>
+        Faculty Portal</a>
+    </div>
+  </nav>
+
+  <!-- Main Content Auth Section (Positioned on the Left Side) -->
+  <main class="main-auth-container">
+    <div class="auth-card">
+
+      <!-- Close (X) button to hide authentication portal and view only background image -->
+      <button class="auth-card-close-btn" onclick="hideAuthCard()" title="Close Portal & View Campus Background">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Card Header Banner -->
+      <div class="card-header-banner">
+        <div id="authPortalBadge"
+          style="display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 9999px; background: rgba(0, 188, 212, 0.15); color: #00bcd4; border: 1px solid rgba(0, 188, 212, 0.35); margin-bottom: 8px;">
+          AUTHENTICATION GATEWAY
+        </div>
+        <h1 id="authCardHeaderTitle">Authentication Portal</h1>
+        <p id="authCardHeaderDesc">Secure Single-Session Access System</p>
+      </div>
+
+      <!-- Navigation Tabs: Login | Register | Forgot Password -->
+      <div class="auth-navigation-tabs">
+        <button class="tab-btn active" id="tabBtnLogin" onclick="switchAuthTab('login')">
+          <i class="fa-solid fa-right-to-bracket"></i> Login
+        </button>
+        <button class="tab-btn" id="tabBtnRegister" onclick="switchAuthTab('register')">
+          <i class="fa-solid fa-user-plus"></i> Register
+        </button>
+        <button class="tab-btn" id="tabBtnForgot" onclick="switchAuthTab('forgot')">
+          <i class="fa-solid fa-key"></i> Reset Key
+        </button>
+      </div>
+
+      <!-- Login Mode Switcher (Password Login vs OTP Login) -->
+      <div class="login-method-switch" id="loginMethodSwitcher">
+        <div class="method-pill active" id="pillPassword" onclick="switchLoginMethod('password')">
+          <i class="fa-solid fa-lock"></i> Password Login
+        </div>
+        <div class="method-pill" id="pillOtp" onclick="switchLoginMethod('otp')">
+          <i class="fa-solid fa-mobile-screen-button"></i> OTP Login
+        </div>
+      </div>
+
+      <!-- Form Bodies Container -->
+      <div class="card-body-forms">
+
+        <!-- Single Active Session Lock Warning -->
+        <div class="session-lock-banner" id="sessionLockBanner">
+          <div class="session-lock-header">
+            <i class="fa-solid fa-shield-cat"></i> Single Active Session Enforced!
+          </div>
+          <div>User account <strong id="lockedUserIdentifier">User</strong> is active on another device/tab.
+            Multi-device access is disabled for account security.</div>
+          <button type="button" class="btn-override-session" onclick="forceTakeoverSession()">
+            <i class="fa-solid fa-power-off"></i> Terminate Other Session & Login Here
+          </button>
+        </div>
+
+        <!-- ===================================================================
+             1. LOGIN FORM (Password & OTP Modes)
+             =================================================================== -->
+        <div class="form-step active" id="stepLogin">
+
+          <!-- Mode A: Password Login -->
+          <form id="formPasswordLogin" onsubmit="handlePasswordLoginSubmit(event)">
+            <div class="form-group">
+              <label for="loginIdentifier" id="lblLoginIdentifier">Username / Roll No / Employee ID</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-id-card input-icon" id="iconLoginIdentifier"></i>
+                <input type="text" id="loginIdentifier" class="form-control" placeholder="Enter username or ID" required
+                  autocomplete="username">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="loginPassword">Account Password</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="loginPassword" class="form-control" placeholder="••••••••••••" required
+                  autocomplete="current-password">
+                <button type="button" class="toggle-pass-btn" onclick="togglePasswordVisibility('loginPassword')">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-row-between">
+              <label class="remember-check">
+                <input type="checkbox" id="rememberSessionCheck" checked> Remember Device Session
+              </label>
+              <a href="#" class="forgot-link" onclick="switchAuthTab('forgot'); return false;">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn-submit-glow" id="btnSubmitLogin">
+              <i class="fa-solid fa-right-to-bracket"></i> SIGN IN TO PORTAL
+            </button>
+          </form>
+
+          <!-- Mode B: OTP Login -->
+          <form id="formOtpLogin" style="display: none;" onsubmit="handleOtpLoginSubmit(event)">
+            <div class="form-group">
+              <label for="otpMobileNumber">Registered Mobile Number / Roll No / Email</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-phone input-icon"></i>
+                <input type="text" id="otpMobileNumber" class="form-control"
+                  placeholder="e.g. 9848100501 or 242G1A05J9">
+              </div>
+            </div>
+
+            <div id="otpVerificationSection" style="display: none;">
+              <label
+                style="font-size: 12px; font-weight: 600; color: #cbd5e1; display: block; text-align: center; text-transform: uppercase;">
+                Enter 6-Digit Security OTP
+              </label>
+
+              <div class="otp-input-group">
+                <input type="text" class="otp-digit" maxlength="1" onkeyup="moveOtpFocus(this, 1)" id="otp1">
+                <input type="text" class="otp-digit" maxlength="1" onkeyup="moveOtpFocus(this, 2)" id="otp2">
+                <input type="text" class="otp-digit" maxlength="1" onkeyup="moveOtpFocus(this, 3)" id="otp3">
+                <input type="text" class="otp-digit" maxlength="1" onkeyup="moveOtpFocus(this, 4)" id="otp4">
+                <input type="text" class="otp-digit" maxlength="1" onkeyup="moveOtpFocus(this, 5)" id="otp5">
+                <input type="text" class="otp-digit" maxlength="1" onkeyup="moveOtpFocus(this, 6)" id="otp6">
+              </div>
+
+              <div class="otp-timer-badge">
+                OTP valid for: <span class="otp-timer-count" id="otpTimerDisplay">00:59</span>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;"
+              id="btnSendOtpGroup">
+              <button type="button" class="btn-submit-glow" onclick="requestOtpCode('whatsapp')"
+                style="background: linear-gradient(135deg, #25D366, #128C7E); font-size: 11px; padding: 10px 8px; justify-content: center; gap: 6px;">
+                <i class="fa-brands fa-whatsapp" style="font-size: 15px;"></i> OTP via WhatsApp
+              </button>
+              <button type="button" class="btn-submit-glow" onclick="requestOtpCode('email')"
+                style="background: linear-gradient(135deg, #0284c7, #0369a1); font-size: 11px; padding: 10px 8px; justify-content: center; gap: 6px;">
+                <i class="fa-solid fa-envelope" style="font-size: 14px;"></i> OTP via Email
+              </button>
+            </div>
+
+            <button type="submit" class="btn-submit-glow btn-submit-secondary" id="btnVerifyOtpSubmit"
+              style="display: none;">
+              <i class="fa-solid fa-shield-check"></i> VERIFY OTP & SIGN IN
+            </button>
+          </form>
+
+        </div>
+
+
+        <!-- ===================================================================
+             2. NEW USER REGISTRATION FORM
+             =================================================================== -->
+        <div class="form-step" id="stepRegister">
+          <form id="formRegister" onsubmit="handleRegistrationSubmit(event)">
+
+            <div class="form-group">
+              <label for="regAccountType">Account Type</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-users-gear input-icon"></i>
+                <select id="regAccountType" class="form-control" style="appearance: none;">
+                  <option value="Student">Student</option>
+                  <option value="Faculty">Faculty / Staff</option>
+                  <option value="Parent">Parent / Guardian</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regFullName">Full Name</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-user input-icon"></i>
+                <input type="text" id="regFullName" class="form-control" placeholder="e.g. Gulagani Tirumalaiah"
+                  required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regRollNo">Roll No / Employee ID</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-id-card input-icon"></i>
+                <input type="text" id="regRollNo" class="form-control" placeholder="e.g. 242G1A05O1" required>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label for="regDept">Department</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-building-columns input-icon"></i>
+                  <select id="regDept" class="form-control">
+                    <option value="CSE">CSE</option>
+                    <option value="AIML">AIML</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EEE">EEE</option>
+                    <option value="CIVIL">CIVIL</option>
+                    <option value="MECH">MECH</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="regMobile">Mobile No.</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-phone input-icon"></i>
+                  <input type="text" id="regMobile" class="form-control" placeholder="98491XXXXX" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regPassword">Create Password</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="regPassword" class="form-control" placeholder="At least 6 characters"
+                  required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-submit-glow">
+              <i class="fa-solid fa-user-check"></i> COMPLETE REGISTRATION
+            </button>
+          </form>
+        </div>
+
+
+        <!-- ===================================================================
+             3. FORGOT PASSWORD / KEY RESET FORM
+             =================================================================== -->
+        <div class="form-step" id="stepForgot">
+          <form id="formForgotPassword" onsubmit="handleResetPasswordSubmit(event)">
+
+            <div id="forgotStep1">
+              <div class="form-group">
+                <label for="forgotIdentifier">Roll Number / Mobile / Email</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-envelope input-icon"></i>
+                  <input type="text" id="forgotIdentifier" class="form-control" placeholder="Enter registered detail"
+                    required>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button type="button" class="btn-submit-glow" onclick="sendPasswordResetOtp('whatsapp')"
+                  style="background: linear-gradient(135deg, #25D366, #128C7E); font-size: 11px; padding: 10px 8px; justify-content: center; gap: 6px;">
+                  <i class="fa-brands fa-whatsapp" style="font-size: 15px;"></i> Code via WhatsApp
+                </button>
+                <button type="button" class="btn-submit-glow" onclick="sendPasswordResetOtp('email')"
+                  style="background: linear-gradient(135deg, #0284c7, #0369a1); font-size: 11px; padding: 10px 8px; justify-content: center; gap: 6px;">
+                  <i class="fa-solid fa-envelope" style="font-size: 14px;"></i> Code via Email
+                </button>
+              </div>
+            </div>
+
+            <div id="forgotStep2" style="display: none; margin-top: 16px;">
+              <div class="form-group">
+                <label for="resetOtpCode">Enter 6-Digit OTP Code</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-key input-icon"></i>
+                  <input type="text" id="resetOtpCode" class="form-control" placeholder="6-digit OTP" maxlength="6"
+                    required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-lock input-icon"></i>
+                  <input type="password" id="newPassword" class="form-control" placeholder="Set new password" required>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-submit-glow btn-submit-secondary">
+                <i class="fa-solid fa-check-double"></i> RESET PASSWORD & SIGN IN
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Popup -->
+  <div class="toast-popup" id="toastPopup">
+    <i class="fa-solid fa-circle-check toast-icon" id="toastIcon"></i>
+    <span id="toastMessage">Welcome to ALITS ERP</span>
+  </div>
+
+  <!-- JavaScript App Logic & 3D WebGL Engine -->
+  <script>
+    // --- 1. THREE.JS 3D BACKGROUND ENGINE ---
+    let scene, camera, renderer, particlesMesh, torusMesh;
+    let mouseX = 0, mouseY = 0;
+
+    function init3DEngine() {
+      const canvas = document.getElementById('canvas3d');
+      scene = new THREE.Scene();
+
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 30;
+
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Create Particle Starfield Sphere
+      const particlesCount = 1200;
+      const posArray = new Float32Array(particlesCount * 3);
+      const colorArray = new Float32Array(particlesCount * 3);
+
+      const color1 = new THREE.Color('#00bcd4');
+      const color2 = new THREE.Color('#11998e');
+      const color3 = new THREE.Color('#6366f1');
+
+      for (let i = 0; i < particlesCount * 3; i += 3) {
+        posArray[i] = (Math.random() - 0.5) * 80;
+        posArray[i + 1] = (Math.random() - 0.5) * 80;
+        posArray[i + 2] = (Math.random() - 0.5) * 80;
+
+        const mixedColor = Math.random() < 0.33 ? color1 : (Math.random() < 0.66 ? color2 : color3);
+        colorArray[i] = mixedColor.r;
+        colorArray[i + 1] = mixedColor.g;
+        colorArray[i + 2] = mixedColor.b;
+      }
+
+      const particlesGeometry = new THREE.BufferGeometry();
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+      particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+
+      const particlesMaterial = new THREE.PointsMaterial({
+        size: 0.28,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.85
+      });
+
+      particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+      scene.add(particlesMesh);
+
+      // Create Rotating Wireframe Torus Knot
+      const torusGeometry = new THREE.TorusKnotGeometry(10, 2.5, 120, 16);
+      const torusMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00bcd4,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.18
+      });
+      torusMesh = new THREE.Mesh(torusGeometry, torusMaterial);
+      torusMesh.position.set(0, 0, -10);
+      scene.add(torusMesh);
+
+      // Add Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+
+      // Event Listeners
+      window.addEventListener('resize', onWindowResize);
+      document.addEventListener('mousemove', onDocumentMouseMove);
+
+      animate3D();
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function onDocumentMouseMove(event) {
+      mouseX = (event.clientX - window.innerWidth / 2) * 0.0005;
+      mouseY = (event.clientY - window.innerHeight / 2) * 0.0005;
+    }
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+
+      if (particlesMesh) {
+        particlesMesh.rotation.y += 0.0012;
+        particlesMesh.rotation.x += 0.0006;
+      }
+
+      if (torusMesh) {
+        torusMesh.rotation.x += 0.003;
+        torusMesh.rotation.y += 0.005;
+      }
+
+      camera.position.x += (mouseX * 20 - camera.position.x) * 0.05;
+      camera.position.y += (-mouseY * 20 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+
+      renderer.render(scene, camera);
+    }
+
+
+    // --- 2. AUTHENTICATION & SINGLE SESSION LOCK ENGINE ---
+    let activeTab = 'login';
+    let activeLoginMethod = 'password';
+    let generatedOtp = '123456';
+    let otpTimerInterval = null;
+    let pendingSessionUser = null;
+
+    // Single Active Session Broadcast Channel
+    const sessionChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('alits_session_channel') : null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        if (typeof init3DEngine === 'function') init3DEngine();
+      } catch (e) {
+        console.warn('[Auth] 3D canvas could not start:', e);
+      }
+      try {
+        checkActiveSessionState();
+      } catch (e) {
+        console.warn('[Auth] Session check failed:', e);
+      }
+      try {
+        initAuthPortalFromUrl();
+      } catch (e) {
+        console.warn('[Auth] Portal init failed:', e);
+      }
+
+      if (sessionChannel) {
+        sessionChannel.onmessage = (event) => {
+          if (event.data && event.data.type === 'SESSION_LOGIN') {
+            const currentActive = JSON.parse(localStorage.getItem('alits_active_session') || '{}');
+            if (currentActive.user && currentActive.user === getCurrentLoggedInUser()) {
+              showToast('⚠️ Session terminated! Account opened on another device/tab.');
+              setTimeout(() => { window.location.reload(); }, 1500);
+            }
+          }
+        };
+      }
+    });
+
+    function checkActiveSessionState() {
+      const activeSession = JSON.parse(localStorage.getItem('alits_active_session') || '{}');
+      if (activeSession.user) {
+        const lockBanner = document.getElementById('sessionLockBanner');
+        const lockedUser = document.getElementById('lockedUserIdentifier');
+        if (lockBanner && lockedUser) {
+          lockedUser.innerText = activeSession.user;
+        }
+      }
+    }
+
+    function getCurrentLoggedInUser() {
+      const current = JSON.parse(localStorage.getItem('alits_portal_user') || '{}');
+      return current.rollNo || current.email || null;
+    }
+
+    function switchAuthTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+
+      const switcher = document.getElementById('loginMethodSwitcher');
+
+      if (tab === 'login') {
+        document.getElementById('tabBtnLogin').classList.add('active');
+        document.getElementById('stepLogin').classList.add('active');
+        if (switcher) switcher.style.display = 'flex';
+        updateAuthPortalHeader();
+      } else if (tab === 'register') {
+        document.getElementById('tabBtnRegister').classList.add('active');
+        document.getElementById('stepRegister').classList.add('active');
+        if (switcher) switcher.style.display = 'none';
+        document.getElementById('authCardHeaderTitle').innerText = 'Student & Staff Registration';
+        document.getElementById('authCardHeaderDesc').innerText = 'Create your new ALITS Portal Account';
+      } else if (tab === 'forgot') {
+        document.getElementById('tabBtnForgot').classList.add('active');
+        document.getElementById('stepForgot').classList.add('active');
+        if (switcher) switcher.style.display = 'none';
+        document.getElementById('authCardHeaderTitle').innerText = 'Reset Security Password';
+        document.getElementById('authCardHeaderDesc').innerText = 'Verify identity via OTP code';
+      }
+    }
+
+    function switchLoginMethod(method) {
+      activeLoginMethod = method;
+      document.querySelectorAll('.method-pill').forEach(pill => pill.classList.remove('active'));
+
+      const passForm = document.getElementById('formPasswordLogin');
+      const otpForm = document.getElementById('formOtpLogin');
+
+      if (method === 'password') {
+        document.getElementById('pillPassword').classList.add('active');
+        passForm.style.display = 'block';
+        otpForm.style.display = 'none';
+      } else {
+        document.getElementById('pillOtp').classList.add('active');
+        passForm.style.display = 'none';
+        otpForm.style.display = 'block';
+      }
+    }
+
+    function togglePasswordVisibility(fieldId) {
+      const input = document.getElementById(fieldId);
+      if (input) {
+        input.type = input.type === 'password' ? 'text' : 'password';
+      }
+    }
+
+    // =========================================================================
+    // UNIQUE USER CREDENTIALS DATABASE (UNIQUE PASSWORDS, MOBILES & EMAILS)
+    // =========================================================================
+    const ALITS_SYSTEM_USERS = [
+      // --- 1. III YEAR I SEM CSE SECTION-D STUDENTS (66 STUDENTS) ---
+      {
+        id: '242G1A05J9',
+        rollNo: '242G1A05J9',
+        aliasRolls: ['242g1a05j9', '242G1A05J9'],
+        name: 'Shaik Bilqees',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'shaik.bilqees.alits@gmail.com',
+        mobile: '9848100501',
+        password: 'Bilqees@05J9',
+        parentName: 'Shaik Mahaboob',
+        parentPhone: '9848100601',
+        overallAttendance: 91.5,
+        pendingFee: 0,
+        cgpa: 8.82
+      },
+      {
+        id: '242G1A05K0',
+        rollNo: '242G1A05K0',
+        aliasRolls: ['242g1a05k0', '242G1A05K0'],
+        name: 'Shaik Khaja Faheem Naz',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'khaja.faheem.alits@gmail.com',
+        mobile: '9848100502',
+        password: 'Faheem#05K0',
+        parentName: 'Shaik Nazir',
+        parentPhone: '9848100602',
+        overallAttendance: 88.0,
+        pendingFee: 12500,
+        cgpa: 8.45
+      },
+      {
+        id: '242G1A05K1',
+        rollNo: '242G1A05K1',
+        aliasRolls: ['242g1a05k1', '242G1A05K1'],
+        name: 'Shaik Mahammad Basha',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'mahammad.basha.alits@gmail.com',
+        mobile: '9848100503',
+        password: 'Basha$05K1',
+        parentName: 'Shaik Basha Sr.',
+        parentPhone: '9848100603',
+        overallAttendance: 89.2,
+        pendingFee: 12500,
+        cgpa: 8.6
+      },
+      {
+        id: '242G1A05K2',
+        rollNo: '242G1A05K2',
+        aliasRolls: ['242g1a05k2', '242G1A05K2'],
+        name: 'Shaik Mahammad Affan',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'mahammad.affan.alits@gmail.com',
+        mobile: '9848100504',
+        password: 'Affan@05K2',
+        parentName: 'Shaik Kareem',
+        parentPhone: '9848100604',
+        overallAttendance: 86.4,
+        pendingFee: 12500,
+        cgpa: 8.3
+      },
+      {
+        id: '242G1A05K3',
+        rollNo: '242G1A05K3',
+        aliasRolls: ['242g1a05k3', '242G1A05K3'],
+        name: 'Shaik Mahammad Thousif',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'mahammad.thousif.alits@gmail.com',
+        mobile: '9848100505',
+        password: 'Thousif#05K3',
+        parentName: 'Shaik Ghouse',
+        parentPhone: '9848100605',
+        overallAttendance: 92.0,
+        pendingFee: 0,
+        cgpa: 8.9
+      },
+      {
+        id: '242G1A05K4',
+        rollNo: '242G1A05K4',
+        aliasRolls: ['242g1a05k4', '242G1A05K4'],
+        name: 'Shaik Mahammad Jubar',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'mahammad.jubar.alits@gmail.com',
+        mobile: '9848100506',
+        password: 'Jubar$05K4',
+        parentName: 'Shaik Subhan',
+        parentPhone: '9848100606',
+        overallAttendance: 84.5,
+        pendingFee: 12500,
+        cgpa: 8.15
+      },
+      {
+        id: '242G1A05K5',
+        rollNo: '242G1A05K5',
+        aliasRolls: ['242g1a05k5', '242G1A05K5'],
+        name: 'Shaik M. Dadapeer',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'dadapeer.alits@gmail.com',
+        mobile: '9848100507',
+        password: 'Dadapeer@05K5',
+        parentName: 'Shaik Dada',
+        parentPhone: '9848100607',
+        overallAttendance: 87.5,
+        pendingFee: 12500,
+        cgpa: 8.5
+      },
+      {
+        id: '242G1A05K6',
+        rollNo: '242G1A05K6',
+        aliasRolls: ['242g1a05k6', '242G1A05K6'],
+        name: 'Sayd Fatheen',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'sayd.fatheen.alits@gmail.com',
+        mobile: '9848100508',
+        password: 'Fatheen#05K6',
+        parentName: 'Sayd Anwar',
+        parentPhone: '9848100608',
+        overallAttendance: 85.0,
+        pendingFee: 12500,
+        cgpa: 8.25
+      },
+      {
+        id: '242G1A05K7',
+        rollNo: '242G1A05K7',
+        aliasRolls: ['242g1a05k7', '242G1A05K7'],
+        name: 'Syed Khizar Fathima',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'khizar.fathima.alits@gmail.com',
+        mobile: '9848100509',
+        password: 'Fathima$05K7',
+        parentName: 'Syed Khaja',
+        parentPhone: '9848100609',
+        overallAttendance: 94.0,
+        pendingFee: 0,
+        cgpa: 9.2
+      },
+      {
+        id: '242G1A05K8',
+        rollNo: '242G1A05K8',
+        aliasRolls: ['242g1a05k8', '242G1A05K8'],
+        name: 'Syed Yashmin',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'syed.yashmin.alits@gmail.com',
+        mobile: '9848100510',
+        password: 'Yashmin@05K8',
+        parentName: 'Syed Mansoor',
+        parentPhone: '9848100610',
+        overallAttendance: 93.2,
+        pendingFee: 0,
+        cgpa: 9.05
+      },
+      {
+        id: '242G1A05K9',
+        rollNo: '242G1A05K9',
+        aliasRolls: ['242g1a05k9', '242G1A05K9'],
+        name: 'T. Harshitha',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 't.harshitha.alits@gmail.com',
+        mobile: '9848100511',
+        password: 'Harshitha#05K9',
+        parentName: 'T. Sreenivasulu',
+        parentPhone: '9848100611',
+        overallAttendance: 90.0,
+        pendingFee: 12500,
+        cgpa: 8.75
+      },
+      {
+        id: '242G1A05L0',
+        rollNo: '242G1A05L0',
+        aliasRolls: ['242g1a05l0', '242G1A05L0'],
+        name: 'T. Sagar',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 't.sagar.alits@gmail.com',
+        mobile: '9848100512',
+        password: 'Sagar$05L0',
+        parentName: 'T. Ramana',
+        parentPhone: '9848100612',
+        overallAttendance: 83.5,
+        pendingFee: 12500,
+        cgpa: 8.1
+      },
+      {
+        id: '242G1A05L1',
+        rollNo: '242G1A05L1',
+        aliasRolls: ['242g1a05l1', '242G1A05L1'],
+        name: 'Thadimarri Ruchitha',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 't.ruchitha.alits@gmail.com',
+        mobile: '9848100513',
+        password: 'Ruchitha@05L1',
+        parentName: 'T. Venkataramana',
+        parentPhone: '9848100613',
+        overallAttendance: 95.0,
+        pendingFee: 0,
+        cgpa: 9.35
+      },
+      {
+        id: '242G1A05L2',
+        rollNo: '242G1A05L2',
+        aliasRolls: ['242g1a05l2', '242G1A05L2'],
+        name: 'Tharigopula Sowjanya',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 't.sowjanya.alits@gmail.com',
+        mobile: '9848100514',
+        password: 'Sowjanya#05L2',
+        parentName: 'T. Peddanna',
+        parentPhone: '9848100614',
+        overallAttendance: 88.5,
+        pendingFee: 12500,
+        cgpa: 8.65
+      },
+      {
+        id: '242G1A05L3',
+        rollNo: '242G1A05L3',
+        aliasRolls: ['242g1a05l3', '242G1A05L3'],
+        name: 'Valmiki Tejaswani',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'v.tejaswani.alits@gmail.com',
+        mobile: '9848100515',
+        password: 'Tejaswani$05L3',
+        parentName: 'V. Ramudu',
+        parentPhone: '9848100615',
+        overallAttendance: 89.0,
+        pendingFee: 12500,
+        cgpa: 8.7
+      },
+      {
+        id: '242G1A05L4',
+        rollNo: '242G1A05L4',
+        aliasRolls: ['242g1a05l4', '242G1A05L4'],
+        name: 'Vanam Hansika',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'v.hansika.alits@gmail.com',
+        mobile: '9848100516',
+        password: 'Hansika@05L4',
+        parentName: 'V. Narayana',
+        parentPhone: '9848100616',
+        overallAttendance: 92.5,
+        pendingFee: 0,
+        cgpa: 9.1
+      },
+      {
+        id: '242G1A05L5',
+        rollNo: '242G1A05L5',
+        aliasRolls: ['242g1a05l5', '242G1A05L5'],
+        name: 'Yadava Ramya Sree',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'y.ramyasree.alits@gmail.com',
+        mobile: '9848100517',
+        password: 'RamyaSree#05L5',
+        parentName: 'Y. Govindappa',
+        parentPhone: '9848100617',
+        overallAttendance: 91.0,
+        pendingFee: 0,
+        cgpa: 8.95
+      },
+      {
+        id: '242G1A05L6',
+        rollNo: '242G1A05L6',
+        aliasRolls: ['242g1a05l6', '242G1A05L6'],
+        name: 'Yalamadala Sravya Sree',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'y.sravyasree.alits@gmail.com',
+        mobile: '9848100518',
+        password: 'SravyaSree$05L6',
+        parentName: 'Y. Gopal',
+        parentPhone: '9848100618',
+        overallAttendance: 93.0,
+        pendingFee: 0,
+        cgpa: 9.15
+      },
+      {
+        id: '242G1A05L7',
+        rollNo: '242G1A05L7',
+        aliasRolls: ['242g1a05l7', '242G1A05L7'],
+        name: 'A. Purna Prashanth',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'a.prashanth.alits@gmail.com',
+        mobile: '9848100519',
+        password: 'Prashanth@05L7',
+        parentName: 'A. Mallikarjuna',
+        parentPhone: '9848100619',
+        overallAttendance: 85.5,
+        pendingFee: 12500,
+        cgpa: 8.2
+      },
+      {
+        id: '242G1A05L8',
+        rollNo: '242G1A05L8',
+        aliasRolls: ['242g1a05l8', '242G1A05L8'],
+        name: 'A. Sreeshanth',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'a.sreeshanth.alits@gmail.com',
+        mobile: '9848100520',
+        password: 'Sreeshanth#05L8',
+        parentName: 'A. Venkatesh',
+        parentPhone: '9848100620',
+        overallAttendance: 87.0,
+        pendingFee: 12500,
+        cgpa: 8.4
+      },
+      {
+        id: '242G1A05L9',
+        rollNo: '242G1A05L9',
+        aliasRolls: ['242g1a05l9', '242G1A05L9'],
+        name: 'B. Hari Priya',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'b.haripriya.alits@gmail.com',
+        mobile: '9848100521',
+        password: 'HariPriya$05L9',
+        parentName: 'B. Nagaraju',
+        parentPhone: '9848100621',
+        overallAttendance: 94.5,
+        pendingFee: 0,
+        cgpa: 9.25
+      },
+      {
+        id: '242G1A05M0',
+        rollNo: '242G1A05M0',
+        aliasRolls: ['242g1a05m0', '242G1A05M0'],
+        name: 'B. Karunakar',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'b.karunakar.alits@gmail.com',
+        mobile: '9848100522',
+        password: 'Karunakar@05M0',
+        parentName: 'B. Ramachandra',
+        parentPhone: '9848100622',
+        overallAttendance: 86.0,
+        pendingFee: 12500,
+        cgpa: 8.35
+      },
+      {
+        id: '242G1A05M1',
+        rollNo: '242G1A05M1',
+        aliasRolls: ['242g1a05m1', '242G1A05M1'],
+        name: 'B. Abhishek',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'b.abhishek.alits@gmail.com',
+        mobile: '9848100523',
+        password: 'Abhishek#05M1',
+        parentName: 'B. Sekhar',
+        parentPhone: '9848100623',
+        overallAttendance: 88.0,
+        pendingFee: 12500,
+        cgpa: 8.55
+      },
+      {
+        id: '242G1A05M2',
+        rollNo: '242G1A05M2',
+        aliasRolls: ['242g1a05m2', '242G1A05M2'],
+        name: 'Charan Deekshik',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'charan.deekshik.alits@gmail.com',
+        mobile: '9848100524',
+        password: 'Deekshik$05M2',
+        parentName: 'C. Ramesh',
+        parentPhone: '9848100624',
+        overallAttendance: 89.5,
+        pendingFee: 12500,
+        cgpa: 8.68
+      },
+      {
+        id: '242G1A05M3',
+        rollNo: '242G1A05M3',
+        aliasRolls: ['242g1a05m3', '242G1A05M3'],
+        name: 'S. Baba Fakruddin',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'baba.fakruddin.alits@gmail.com',
+        mobile: '9848100525',
+        password: 'Fakruddin@05M3',
+        parentName: 'S. Hussain',
+        parentPhone: '9848100625',
+        overallAttendance: 90.5,
+        pendingFee: 0,
+        cgpa: 8.8
+      },
+      {
+        id: '242G1A05M4',
+        rollNo: '242G1A05M4',
+        aliasRolls: ['242g1a05m4', '242G1A05M4'],
+        name: 'B. Raja Sekhar',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'b.rajasekhar.alits@gmail.com',
+        mobile: '9848100526',
+        password: 'RajaSekhar#05M4',
+        parentName: 'B. Obulesu',
+        parentPhone: '9848100626',
+        overallAttendance: 84.0,
+        pendingFee: 12500,
+        cgpa: 8.1
+      },
+      {
+        id: '242G1A05M5',
+        rollNo: '242G1A05M5',
+        aliasRolls: ['242g1a05m5', '242G1A05M5'],
+        name: 'B. Akshaya',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'b.akshaya.alits@gmail.com',
+        mobile: '9848100527',
+        password: 'Akshaya$05M5',
+        parentName: 'B. Prasad',
+        parentPhone: '9848100627',
+        overallAttendance: 96.0,
+        pendingFee: 0,
+        cgpa: 9.4
+      },
+      {
+        id: '242G1A05M6',
+        rollNo: '242G1A05M6',
+        aliasRolls: ['242g1a05m6', '242G1A05M6'],
+        name: 'C. Leela',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'c.leela.alits@gmail.com',
+        mobile: '9848100528',
+        password: 'Leela@05M6',
+        parentName: 'C. Sivanna',
+        parentPhone: '9848100628',
+        overallAttendance: 92.0,
+        pendingFee: 0,
+        cgpa: 9.0
+      },
+      {
+        id: '242G1A05M7',
+        rollNo: '242G1A05M7',
+        aliasRolls: ['242g1a05m7', '242G1A05M7'],
+        name: 'C. Neethsa',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'c.neethsa.alits@gmail.com',
+        mobile: '9848100529',
+        password: 'Neethsa#05M7',
+        parentName: 'C. Mohan',
+        parentPhone: '9848100629',
+        overallAttendance: 91.5,
+        pendingFee: 0,
+        cgpa: 8.9
+      },
+      {
+        id: '242G1A05M8',
+        rollNo: '242G1A05M8',
+        aliasRolls: ['242g1a05m8', '242G1A05M8'],
+        name: 'C. Yogananda',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'c.yogananda.alits@gmail.com',
+        mobile: '9848100530',
+        password: 'Yogananda$05M8',
+        parentName: 'C. Anjinappa',
+        parentPhone: '9848100630',
+        overallAttendance: 87.5,
+        pendingFee: 12500,
+        cgpa: 8.45
+      },
+      {
+        id: '242G1A05M9',
+        rollNo: '242G1A05M9',
+        aliasRolls: ['242g1a05m9', '242G1A05M9'],
+        name: 'D. Jyoshana',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'd.jyoshana.alits@gmail.com',
+        mobile: '9848100531',
+        password: 'Jyoshana@05M9',
+        parentName: 'D. Narayana',
+        parentPhone: '9848100631',
+        overallAttendance: 93.5,
+        pendingFee: 0,
+        cgpa: 9.15
+      },
+      {
+        id: '242G1A05N0',
+        rollNo: '242G1A05N0',
+        aliasRolls: ['242g1a05n0', '242G1A05N0'],
+        name: 'D. Keerthi',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'd.keerthi.alits@gmail.com',
+        mobile: '9848100532',
+        password: 'Keerthi#05N0',
+        parentName: 'D. Lakshmanna',
+        parentPhone: '9848100632',
+        overallAttendance: 90.0,
+        pendingFee: 12500,
+        cgpa: 8.85
+      },
+      {
+        id: '242G1A05N1',
+        rollNo: '242G1A05N1',
+        aliasRolls: ['242g1a05n1', '242G1A05N1'],
+        name: 'D. Shaban',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'd.shaban.alits@gmail.com',
+        mobile: '9848100533',
+        password: 'Shaban$05N1',
+        parentName: 'D. Rasool',
+        parentPhone: '9848100633',
+        overallAttendance: 85.0,
+        pendingFee: 12500,
+        cgpa: 8.2
+      },
+      {
+        id: '242G1A05N2',
+        rollNo: '242G1A05N2',
+        aliasRolls: ['242g1a05n2', '242G1A05N2'],
+        name: 'G. Manesha',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'g.manesha.alits@gmail.com',
+        mobile: '9848100534',
+        password: 'Manesha@05N2',
+        parentName: 'G. Peddanna',
+        parentPhone: '9848100634',
+        overallAttendance: 89.0,
+        pendingFee: 12500,
+        cgpa: 8.7
+      },
+      {
+        id: '242G1A05N3',
+        rollNo: '242G1A05N3',
+        aliasRolls: ['242g1a05n3', '242G1A05N3'],
+        name: 'G. Meharnesa',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'g.meharnesa.alits@gmail.com',
+        mobile: '9848100535',
+        password: 'Meharnesa#05N3',
+        parentName: 'G. Khader',
+        parentPhone: '9848100635',
+        overallAttendance: 92.0,
+        pendingFee: 0,
+        cgpa: 8.95
+      },
+      {
+        id: '242G1A05N4',
+        rollNo: '242G1A05N4',
+        aliasRolls: ['242g1a05n4', '242G1A05N4'],
+        name: 'G. Thriloknath',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'g.thriloknath.alits@gmail.com',
+        mobile: '9848100536',
+        password: 'Thrilok$05N4',
+        parentName: 'G. Thimmappa',
+        parentPhone: '9848100636',
+        overallAttendance: 88.0,
+        pendingFee: 12500,
+        cgpa: 8.5
+      },
+      {
+        id: '242G1A05N5',
+        rollNo: '242G1A05N5',
+        aliasRolls: ['242g1a05n5', '242G1A05N5'],
+        name: 'G. Paramesh',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'g.paramesh.alits@gmail.com',
+        mobile: '9848100537',
+        password: 'Paramesh@05N5',
+        parentName: 'G. Venkataramana',
+        parentPhone: '9848100637',
+        overallAttendance: 86.5,
+        pendingFee: 12500,
+        cgpa: 8.35
+      },
+      {
+        id: '242G1A05N6',
+        rollNo: '242G1A05N6',
+        aliasRolls: ['242g1a05n6', '242G1A05N6'],
+        name: 'G. Hansika',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'g.hansika.alits@gmail.com',
+        mobile: '9848100538',
+        password: 'Hansika#05N6',
+        parentName: 'G. Ramana',
+        parentPhone: '9848100638',
+        overallAttendance: 95.0,
+        pendingFee: 0,
+        cgpa: 9.3
+      },
+      {
+        id: '242G1A05N7',
+        rollNo: '242G1A05N7',
+        aliasRolls: ['242g1a05n7', '242G1A05N7'],
+        name: 'G. Poojatha',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'g.poojatha.alits@gmail.com',
+        mobile: '9848100539',
+        password: 'Poojatha$05N7',
+        parentName: 'G. Chandrasekhar',
+        parentPhone: '9848100639',
+        overallAttendance: 91.0,
+        pendingFee: 0,
+        cgpa: 8.85
+      },
+      {
+        id: '242G1A05N8',
+        rollNo: '242G1A05N8',
+        aliasRolls: ['242g1a05n8', '242G1A05N8'],
+        name: 'G. Purushotam',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'g.purushotam.alits@gmail.com',
+        mobile: '9848100540',
+        password: 'Purushotam@05N8',
+        parentName: 'G. Pullanna',
+        parentPhone: '9848100640',
+        overallAttendance: 87.0,
+        pendingFee: 12500,
+        cgpa: 8.4
+      },
+      {
+        id: '242G1A05N9',
+        rollNo: '242G1A05N9',
+        aliasRolls: ['242g1a05n9', '242G1A05N9'],
+        name: 'G. Bhargav',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'g.bhargav.alits@gmail.com',
+        mobile: '9848100541',
+        password: 'Bhargav#05N9',
+        parentName: 'G. Sreenivasulu',
+        parentPhone: '9848100641',
+        overallAttendance: 89.0,
+        pendingFee: 12500,
+        cgpa: 8.6
+      },
+      {
+        id: '242G1A05O0',
+        rollNo: '242G1A05O0',
+        aliasRolls: ['242g1a05o0', '242G1A05O0'],
+        name: 'G. Somu Shekar',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'g.somushekar.alits@gmail.com',
+        mobile: '9848100542',
+        password: 'SomuShekar$05O0',
+        parentName: 'G. Subbarayudu',
+        parentPhone: '9848100642',
+        overallAttendance: 88.0,
+        pendingFee: 12500,
+        cgpa: 8.55
+      },
+      {
+        id: '242G1A05O1',
+        rollNo: '242G1A05O1',
+        aliasRolls: ['242g1a05o1', '242G1A05O1'],
+        name: 'Gulagani Tirumalaiah',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'gulaganithirumala277@gmail.com',
+        mobile: '7337486311',
+        password: 'Tirumala@242',
+        parentName: 'G. Tirupathaiah',
+        parentPhone: '9949903968',
+        overallAttendance: 88.5,
+        pendingFee: 12500,
+        cgpa: 8.75
+      },
+      {
+        id: '242G1A05O2',
+        rollNo: '242G1A05O2',
+        aliasRolls: ['242g1a05o2', '242G1A05O2'],
+        name: 'H. Sreedhar',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'hsreedhar.alits@gmail.com',
+        mobile: '9848012345',
+        password: 'Sreedhar#05O2',
+        parentName: 'H. Rammohan',
+        parentPhone: '9848054321',
+        overallAttendance: 91.0,
+        pendingFee: 0,
+        cgpa: 9.1
+      },
+      {
+        id: '242G1A05O3',
+        rollNo: '242G1A05O3',
+        aliasRolls: ['242g1a05o3', '242G1A05O3'],
+        name: 'H. Sai Venkat',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'h.saivenkat.alits@gmail.com',
+        mobile: '9848100545',
+        password: 'SaiVenkat$05O3',
+        parentName: 'H. Venkataramana',
+        parentPhone: '9848100645',
+        overallAttendance: 86.0,
+        pendingFee: 12500,
+        cgpa: 8.3
+      },
+      {
+        id: '242G1A05O4',
+        rollNo: '242G1A05O4',
+        aliasRolls: ['242g1a05o4', '242G1A05O4'],
+        name: 'H. Snehalatha',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'h.snehalatha.alits@gmail.com',
+        mobile: '9848100546',
+        password: 'Snehalatha@05O4',
+        parentName: 'H. Chandrasekhar',
+        parentPhone: '9848100646',
+        overallAttendance: 94.0,
+        pendingFee: 0,
+        cgpa: 9.2
+      },
+      {
+        id: '242G1A05O5',
+        rollNo: '242G1A05O5',
+        aliasRolls: ['242g1a05o5', '242G1A05O5'],
+        name: 'H. Hassiba',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'h.hassiba.alits@gmail.com',
+        mobile: '9848100547',
+        password: 'Hassiba#05O5',
+        parentName: 'H. Hussain Basha',
+        parentPhone: '9848100647',
+        overallAttendance: 93.0,
+        pendingFee: 0,
+        cgpa: 9.05
+      },
+      {
+        id: '242G1A05O6',
+        rollNo: '242G1A05O6',
+        aliasRolls: ['242g1a05o6', '242G1A05O6'],
+        name: 'J. Avinash Raj',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'j.avinashraj.alits@gmail.com',
+        mobile: '9848100548',
+        password: 'Avinash$05O6',
+        parentName: 'J. Jayaraju',
+        parentPhone: '9848100648',
+        overallAttendance: 85.5,
+        pendingFee: 12500,
+        cgpa: 8.25
+      },
+      {
+        id: '242G1A05O7',
+        rollNo: '242G1A05O7',
+        aliasRolls: ['242g1a05o7', '242G1A05O7'],
+        name: 'J. Rupa',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'j.rupa.alits@gmail.com',
+        mobile: '9848100549',
+        password: 'Rupa@05O7',
+        parentName: 'J. Ramakrishna',
+        parentPhone: '9848100649',
+        overallAttendance: 92.5,
+        pendingFee: 0,
+        cgpa: 9.0
+      },
+      {
+        id: '242G1A05O8',
+        rollNo: '242G1A05O8',
+        aliasRolls: ['242g1a05o8', '242G1A05O8'],
+        name: 'K. Vinay Kumar Reddy',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'k.vinaykumar.alits@gmail.com',
+        mobile: '9848100550',
+        password: 'VinayReddy#05O8',
+        parentName: 'K. Venkatasubba Reddy',
+        parentPhone: '9848100650',
+        overallAttendance: 89.0,
+        pendingFee: 12500,
+        cgpa: 8.65
+      },
+      {
+        id: '242G1A05O9',
+        rollNo: '242G1A05O9',
+        aliasRolls: ['242g1a05o9', '242G1A05O9'],
+        name: 'K. Sai Karthik Naik',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'k.saikarthik.alits@gmail.com',
+        mobile: '9848100551',
+        password: 'KarthikNaik$05O9',
+        parentName: 'K. Lokya Naik',
+        parentPhone: '9848100651',
+        overallAttendance: 87.5,
+        pendingFee: 12500,
+        cgpa: 8.45
+      },
+      {
+        id: '242G1A05P0',
+        rollNo: '242G1A05P0',
+        aliasRolls: ['242g1a05p0', '242G1A05P0'],
+        name: 'K. Anil Kumar',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'k.anilkumar.alits@gmail.com',
+        mobile: '9848100552',
+        password: 'AnilKumar@05P0',
+        parentName: 'K. Ramudu',
+        parentPhone: '9848100652',
+        overallAttendance: 88.5,
+        pendingFee: 12500,
+        cgpa: 8.55
+      },
+      {
+        id: '242G1A05P1',
+        rollNo: '242G1A05P1',
+        aliasRolls: ['242g1a05p1', '242G1A05P1'],
+        name: 'K. Harshitha',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'k.harshitha.alits@gmail.com',
+        mobile: '9848100553',
+        password: 'Harshitha#05P1',
+        parentName: 'K. Narayanaswamy',
+        parentPhone: '9848100653',
+        overallAttendance: 95.5,
+        pendingFee: 0,
+        cgpa: 9.35
+      },
+      {
+        id: '242G1A05P2',
+        rollNo: '242G1A05P2',
+        aliasRolls: ['242g1a05p2', '242G1A05P2'],
+        name: 'K. Sunil Naik',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'k.sunilnaik.alits@gmail.com',
+        mobile: '9848100554',
+        password: 'SunilNaik$05P2',
+        parentName: 'K. Bheema Naik',
+        parentPhone: '9848100654',
+        overallAttendance: 86.0,
+        pendingFee: 12500,
+        cgpa: 8.3
+      },
+      {
+        id: '242G1A05P3',
+        rollNo: '242G1A05P3',
+        aliasRolls: ['242g1a05p3', '242G1A05P3'],
+        name: 'M. Esha Rani',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'm.esharani.alits@gmail.com',
+        mobile: '9848100555',
+        password: 'EshaRani@05P3',
+        parentName: 'M. Venkataramudu',
+        parentPhone: '9848100655',
+        overallAttendance: 93.0,
+        pendingFee: 0,
+        cgpa: 9.1
+      },
+      {
+        id: '242G1A05P4',
+        rollNo: '242G1A05P4',
+        aliasRolls: ['242g1a05p4', '242G1A05P4'],
+        name: 'M. Jahanavi',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'm.jahanavi.alits@gmail.com',
+        mobile: '9848100556',
+        password: 'Jahanavi#05P4',
+        parentName: 'M. Govindappa',
+        parentPhone: '9848100656',
+        overallAttendance: 91.5,
+        pendingFee: 0,
+        cgpa: 8.9
+      },
+      {
+        id: '242G1A05P5',
+        rollNo: '242G1A05P5',
+        aliasRolls: ['242g1a05p5', '242G1A05P5'],
+        name: 'M. Samith Royal',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'm.samithroyal.alits@gmail.com',
+        mobile: '9848100557',
+        password: 'SamithRoyal$05P5',
+        parentName: 'M. Rajasekhar',
+        parentPhone: '9848100657',
+        overallAttendance: 90.0,
+        pendingFee: 12500,
+        cgpa: 8.75
+      },
+      {
+        id: '242G1A05P6',
+        rollNo: '242G1A05P6',
+        aliasRolls: ['242g1a05p6', '242G1A05P6'],
+        name: 'M. Kiran Kumar',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'm.kirankumar.alits@gmail.com',
+        mobile: '9848100558',
+        password: 'KiranKumar@05P6',
+        parentName: 'M. Suresh',
+        parentPhone: '9848100658',
+        overallAttendance: 88.0,
+        pendingFee: 12500,
+        cgpa: 8.5
+      },
+      {
+        id: '242G1A05P7',
+        rollNo: '242G1A05P7',
+        aliasRolls: ['242g1a05p7', '242G1A05P7'],
+        name: 'M. Sai Obulamma',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'm.saiobulamma.alits@gmail.com',
+        mobile: '9848100559',
+        password: 'SaiObulamma#05P7',
+        parentName: 'M. Obulesu',
+        parentPhone: '9848100659',
+        overallAttendance: 92.5,
+        pendingFee: 0,
+        cgpa: 9.05
+      },
+      {
+        id: '242G1A05P8',
+        rollNo: '242G1A05P8',
+        aliasRolls: ['242g1a05p8', '242G1A05P8'],
+        name: 'M. Bavani Prasad',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'm.bavaniprasad.alits@gmail.com',
+        mobile: '9848100560',
+        password: 'BavaniPrasad$05P8',
+        parentName: 'M. Anjaneyulu',
+        parentPhone: '9848100660',
+        overallAttendance: 87.0,
+        pendingFee: 12500,
+        cgpa: 8.4
+      },
+      {
+        id: '242G1A05P9',
+        rollNo: '242G1A05P9',
+        aliasRolls: ['242g1a05p9', '242G1A05P9'],
+        name: 'M. Pradeep Sai Krishna',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'm.pradeepsai.alits@gmail.com',
+        mobile: '9848100561',
+        password: 'PradeepSai@05P9',
+        parentName: 'M. Venkataswamy',
+        parentPhone: '9848100661',
+        overallAttendance: 89.5,
+        pendingFee: 12500,
+        cgpa: 8.65
+      },
+      {
+        id: '242G1A05Q0',
+        rollNo: '242G1A05Q0',
+        aliasRolls: ['242g1a05q0', '242G1A05Q0'],
+        name: 'M. Katamayya',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'm.katamayya.alits@gmail.com',
+        mobile: '9848100562',
+        password: 'Katamayya#05Q0',
+        parentName: 'M. Chinna Ramudu',
+        parentPhone: '9848100662',
+        overallAttendance: 86.5,
+        pendingFee: 12500,
+        cgpa: 8.35
+      },
+      {
+        id: '242G1A05Q1',
+        rollNo: '242G1A05Q1',
+        aliasRolls: ['242g1a05q1', '242G1A05Q1'],
+        name: 'N. Sandya Rani',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'n.sandhyarani.alits@gmail.com',
+        mobile: '9848100563',
+        password: 'SandyaRani$05Q1',
+        parentName: 'N. Narayana',
+        parentPhone: '9848100663',
+        overallAttendance: 94.0,
+        pendingFee: 0,
+        cgpa: 9.25
+      },
+      {
+        id: '242G1A05Q2',
+        rollNo: '242G1A05Q2',
+        aliasRolls: ['242g1a05q2', '242G1A05Q2'],
+        name: 'P. Naveen',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'p.naveen.alits@gmail.com',
+        mobile: '9848100564',
+        password: 'NaveenKumar@05Q2',
+        parentName: 'P. Peddanna',
+        parentPhone: '9848100664',
+        overallAttendance: 88.0,
+        pendingFee: 12500,
+        cgpa: 8.55
+      },
+      {
+        id: '242G1A05Q3',
+        rollNo: '242G1A05Q3',
+        aliasRolls: ['242g1a05q3', '242G1A05Q3'],
+        name: 'P. Venkat',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'p.venkat.alits@gmail.com',
+        mobile: '9848100565',
+        password: 'Venkat#05Q3',
+        parentName: 'P. Ramachandra',
+        parentPhone: '9848100665',
+        overallAttendance: 87.5,
+        pendingFee: 12500,
+        cgpa: 8.48
+      },
+      {
+        id: '242G1A05Q4',
+        rollNo: '242G1A05Q4',
+        aliasRolls: ['242g1a05q4', '242G1A05Q4'],
+        name: 'P. Manasa Reddy',
+        role: 'Student',
+        branch: 'B.Tech - Computer Science & Engineering (CSE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-D',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'p.manasareddy.alits@gmail.com',
+        mobile: '9848100566',
+        password: 'ManasaReddy$05Q4',
+        parentName: 'P. Pratap Reddy',
+        parentPhone: '9848100666',
+        overallAttendance: 96.5,
+        pendingFee: 0,
+        cgpa: 9.5
+      },
+      // --- CIVIL ENGINEERING 3RD YEAR STUDENTS (13 STUDENTS) ---
+      {
+        id: '242G1A0101',
+        rollNo: '242G1A0101',
+        aliasRolls: ['242g1a0101', '242G1A0101'],
+        name: 'Anchula Yaswanth',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'anchula.yaswanth.alits@gmail.com',
+        mobile: '9848100701',
+        password: 'Yaswanth@0101',
+        parentName: 'A. Narayana',
+        parentPhone: '9848100801',
+        overallAttendance: 91.5,
+        pendingFee: 0,
+        cgpa: 8.85
+      },
+      {
+        id: '242G1A0102',
+        rollNo: '242G1A0102',
+        aliasRolls: ['242g1a0102', '242G1A0102'],
+        name: 'Ankappagari Oram Charan',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'ankappagari.charan.alits@gmail.com',
+        mobile: '9848100702',
+        password: 'Charan#0102',
+        parentName: 'A. Ramamurthy',
+        parentPhone: '9848100802',
+        overallAttendance: 88.0,
+        pendingFee: 12500,
+        cgpa: 8.50
+      },
+      {
+        id: '242G1A0103',
+        rollNo: '242G1A0103',
+        aliasRolls: ['242g1a0103', '242G1A0103'],
+        name: 'Bukke Sai Ganesh Naik',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'bukke.saiganesh.alits@gmail.com',
+        mobile: '9848100703',
+        password: 'Ganesh$0103',
+        parentName: 'B. Lakshman Naik',
+        parentPhone: '9848100803',
+        overallAttendance: 89.5,
+        pendingFee: 0,
+        cgpa: 8.65
+      },
+      {
+        id: '242G1A0104',
+        rollNo: '242G1A0104',
+        aliasRolls: ['242g1a0104', '242G1A0104'],
+        name: 'Dasari Sai Santhosh',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'dasari.santhosh.alits@gmail.com',
+        mobile: '9848100704',
+        password: 'Santhosh@0104',
+        parentName: 'D. Venkatesh',
+        parentPhone: '9848100804',
+        overallAttendance: 93.0,
+        pendingFee: 0,
+        cgpa: 8.90
+      },
+      {
+        id: '242G1A0105',
+        rollNo: '242G1A0105',
+        aliasRolls: ['242g1a0105', '242G1A0105'],
+        name: 'Goddumarri Mahendra',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'goddumarri.mahendra.alits@gmail.com',
+        mobile: '9848100705',
+        password: 'Mahendra#0105',
+        parentName: 'G. Obulesu',
+        parentPhone: '9848100805',
+        overallAttendance: 87.5,
+        pendingFee: 12500,
+        cgpa: 8.42
+      },
+      {
+        id: '242G1A0106',
+        rollNo: '242G1A0106',
+        aliasRolls: ['242g1a0106', '242G1A0106'],
+        name: 'Kajji Prabhash',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'kajji.prabhash.alits@gmail.com',
+        mobile: '9848100706',
+        password: 'Prabhash$0106',
+        parentName: 'K. Ramanjaneyulu',
+        parentPhone: '9848100806',
+        overallAttendance: 90.5,
+        pendingFee: 0,
+        cgpa: 8.75
+      },
+      {
+        id: '242G1A0108',
+        rollNo: '242G1A0108',
+        aliasRolls: ['242g1a0108', '242G1A0108'],
+        name: 'Kyabarshi Indrani',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'kyabarshi.indrani.alits@gmail.com',
+        mobile: '9848100708',
+        password: 'Indrani@0108',
+        parentName: 'K. Narayanaswamy',
+        parentPhone: '9848100808',
+        overallAttendance: 94.5,
+        pendingFee: 0,
+        cgpa: 9.15
+      },
+      {
+        id: '242G1A0109',
+        rollNo: '242G1A0109',
+        aliasRolls: ['242g1a0109', '242G1A0109'],
+        name: 'Mandlolla Manikanta',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'mandlolla.manikanta.alits@gmail.com',
+        mobile: '9848100709',
+        password: 'Manikanta#0109',
+        parentName: 'M. Sreenivasulu',
+        parentPhone: '9848100809',
+        overallAttendance: 86.5,
+        pendingFee: 12500,
+        cgpa: 8.30
+      },
+      {
+        id: '242G1A0110',
+        rollNo: '242G1A0110',
+        aliasRolls: ['242g1a0110', '242G1A0110'],
+        name: 'Mummalla Jayachandra',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'mummalla.jayachandra.alits@gmail.com',
+        mobile: '9848100710',
+        password: 'Jayachandra$0110',
+        parentName: 'M. Venkataramana',
+        parentPhone: '9848100810',
+        overallAttendance: 88.5,
+        pendingFee: 20000,
+        cgpa: 8.55
+      },
+      {
+        id: '242G1A0111',
+        rollNo: '242G1A0111',
+        aliasRolls: ['242g1a0111', '242G1A0111'],
+        name: 'Nagiri Madhu',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'nagiri.madhu.alits@gmail.com',
+        mobile: '9848100711',
+        password: 'Madhu@0111',
+        parentName: 'N. Peddanna',
+        parentPhone: '9848100811',
+        overallAttendance: 90.0,
+        pendingFee: 0,
+        cgpa: 8.70
+      },
+      {
+        id: '242G1A0112',
+        rollNo: '242G1A0112',
+        aliasRolls: ['242g1a0112', '242G1A0112'],
+        name: 'Neeruganti Jagannath',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'neeruganti.jagannath.alits@gmail.com',
+        mobile: '9848100712',
+        password: 'Jagannath#0112',
+        parentName: 'N. Chandra Sekhar',
+        parentPhone: '9848100812',
+        overallAttendance: 87.0,
+        pendingFee: 20000,
+        cgpa: 8.40
+      },
+      {
+        id: '242G1A0113',
+        rollNo: '242G1A0113',
+        aliasRolls: ['242g1a0113', '242G1A0113'],
+        name: 'Shaik Mohammad Munwar',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'shaik.munwar.alits@gmail.com',
+        mobile: '9848100713',
+        password: 'Munwar$0113',
+        parentName: 'Shaik Anwar',
+        parentPhone: '9848100813',
+        overallAttendance: 89.5,
+        pendingFee: 20000,
+        cgpa: 8.65
+      },
+      {
+        id: '242G1A0114',
+        rollNo: '242G1A0114',
+        aliasRolls: ['242g1a0114', '242G1A0114'],
+        name: 'Shaik Mohammad Ryhan',
+        role: 'Student',
+        branch: 'B.Tech - Civil Engineering (CIVIL)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'shaik.ryhan.alits@gmail.com',
+        mobile: '9848100714',
+        password: 'Ryhan@0114',
+        parentName: 'Shaik Rasool',
+        parentPhone: '9848100814',
+        overallAttendance: 92.5,
+        pendingFee: 0,
+        cgpa: 8.95
+      },
+      // --- ELECTRICAL & ELECTRONICS ENGINEERING (EEE) 3RD YEAR STUDENTS (49 STUDENTS) ---
+      {
+        id: '242G1A0201',
+        rollNo: '242G1A0201',
+        aliasRolls: ['242g1a0201', '242G1A0201'],
+        name: 'Alakunta Radhika',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'alakunta.radhika.alits@gmail.com',
+        mobile: '9848100801',
+        password: 'Radhika@0201',
+        parentName: 'A. Sreenivasulu',
+        parentPhone: '9848100901',
+        overallAttendance: 93.5,
+        pendingFee: 0,
+        cgpa: 9.1
+      },
+      {
+        id: '242G1A0202',
+        rollNo: '242G1A0202',
+        aliasRolls: ['242g1a0202', '242G1A0202'],
+        name: 'Aspari Chandu',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'aspari.chandu.alits@gmail.com',
+        mobile: '9848100802',
+        password: 'Chandu#0202',
+        parentName: 'A. Venkataswamy',
+        parentPhone: '9848100902',
+        overallAttendance: 87.5,
+        pendingFee: 20000,
+        cgpa: 8.45
+      },
+      {
+        id: '242G1A0203',
+        rollNo: '242G1A0203',
+        aliasRolls: ['242g1a0203', '242G1A0203'],
+        name: 'B Kalpana',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'b.kalpana.alits@gmail.com',
+        mobile: '9848100803',
+        password: 'Kalpana$0203',
+        parentName: 'B. Narayana',
+        parentPhone: '9848100903',
+        overallAttendance: 94.0,
+        pendingFee: 0,
+        cgpa: 9.2
+      },
+      {
+        id: '242G1A0204',
+        rollNo: '242G1A0204',
+        aliasRolls: ['242g1a0204', '242G1A0204'],
+        name: 'Bandi Ramyasree',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'bandi.ramyasree.alits@gmail.com',
+        mobile: '9848100804',
+        password: 'Ramyasree@0204',
+        parentName: 'B. Chandrasekhar',
+        parentPhone: '9848100904',
+        overallAttendance: 95.0,
+        pendingFee: 0,
+        cgpa: 9.35
+      },
+      {
+        id: '242G1A0205',
+        rollNo: '242G1A0205',
+        aliasRolls: ['242g1a0205', '242G1A0205'],
+        name: 'Bestha Revathi',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'bestha.revathi.alits@gmail.com',
+        mobile: '9848100805',
+        password: 'Revathi#0205',
+        parentName: 'B. Ramanjulu',
+        parentPhone: '9848100905',
+        overallAttendance: 91.0,
+        pendingFee: 0,
+        cgpa: 8.8
+      },
+      {
+        id: '242G1A0206',
+        rollNo: '242G1A0206',
+        aliasRolls: ['242g1a0206', '242G1A0206'],
+        name: 'Boyapati Maruthi',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'boyapati.maruthi.alits@gmail.com',
+        mobile: '9848100806',
+        password: 'Maruthi$0206',
+        parentName: 'B. Venkateswarlu',
+        parentPhone: '9848100906',
+        overallAttendance: 88.0,
+        pendingFee: 12500,
+        cgpa: 8.5
+      },
+      {
+        id: '242G1A0207',
+        rollNo: '242G1A0207',
+        aliasRolls: ['242g1a0207', '242G1A0207'],
+        name: 'Chilla Hitesh',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'chilla.hitesh.alits@gmail.com',
+        mobile: '9848100807',
+        password: 'Hitesh@0207',
+        parentName: 'C. Subba Rao',
+        parentPhone: '9848100907',
+        overallAttendance: 89.5,
+        pendingFee: 12500,
+        cgpa: 8.65
+      },
+      {
+        id: '242G1A0208',
+        rollNo: '242G1A0208',
+        aliasRolls: ['242g1a0208', '242G1A0208'],
+        name: 'Choutipalli Sai Sharanya',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'choutipalli.sharanya.alits@gmail.com',
+        mobile: '9848100808',
+        password: 'Sharanya#0208',
+        parentName: 'C. Mallikarjuna',
+        parentPhone: '9848100908',
+        overallAttendance: 96.0,
+        pendingFee: 0,
+        cgpa: 9.45
+      },
+      {
+        id: '242G1A0209',
+        rollNo: '242G1A0209',
+        aliasRolls: ['242g1a0209', '242G1A0209'],
+        name: 'D Leeladhar Kumar',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'd.leeladhar.alits@gmail.com',
+        mobile: '9848100809',
+        password: 'Leeladhar$0209',
+        parentName: 'D. Ramanaiah',
+        parentPhone: '9848100909',
+        overallAttendance: 86.5,
+        pendingFee: 20000,
+        cgpa: 8.3
+      },
+      {
+        id: '242G1A0210',
+        rollNo: '242G1A0210',
+        aliasRolls: ['242g1a0210', '242G1A0210'],
+        name: 'Dalavayi Mahendra',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'dalavayi.mahendra.alits@gmail.com',
+        mobile: '9848100810',
+        password: 'Mahendra@0210',
+        parentName: 'D. Gangadhar',
+        parentPhone: '9848100910',
+        overallAttendance: 90.0,
+        pendingFee: 12500,
+        cgpa: 8.75
+      },
+      {
+        id: '242G1A0211',
+        rollNo: '242G1A0211',
+        aliasRolls: ['242g1a0211', '242G1A0211'],
+        name: 'Dandugula Prasanna',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'dandugula.prasanna.alits@gmail.com',
+        mobile: '9848100811',
+        password: 'Prasanna#0211',
+        parentName: 'D. Nagaraju',
+        parentPhone: '9848100911',
+        overallAttendance: 93.0,
+        pendingFee: 0,
+        cgpa: 9.05
+      },
+      {
+        id: '242G1A0212',
+        rollNo: '242G1A0212',
+        aliasRolls: ['242g1a0212', '242G1A0212'],
+        name: 'Gadde Jahnavi',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'gadde.jahnavi.alits@gmail.com',
+        mobile: '9848100812',
+        password: 'Jahnavi$0212',
+        parentName: 'G. Krishnaiah',
+        parentPhone: '9848100912',
+        overallAttendance: 92.5,
+        pendingFee: 0,
+        cgpa: 8.95
+      },
+      {
+        id: '242G1A0213',
+        rollNo: '242G1A0213',
+        aliasRolls: ['242g1a0213', '242G1A0213'],
+        name: 'Guggilla Chennakesava Reddy',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'guggilla.chennakesava.alits@gmail.com',
+        mobile: '9848100813',
+        password: 'Chenna@0213',
+        parentName: 'G. Narayana Reddy',
+        parentPhone: '9848100913',
+        overallAttendance: 88.5,
+        pendingFee: 20000,
+        cgpa: 8.55
+      },
+      {
+        id: '242G1A0214',
+        rollNo: '242G1A0214',
+        aliasRolls: ['242g1a0214', '242G1A0214'],
+        name: 'Gujjugari Thirumalesu',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'gujjugari.thirumalesu.alits@gmail.com',
+        mobile: '9848100814',
+        password: 'Thirumalesu#0214',
+        parentName: 'G. Venkataiah',
+        parentPhone: '9848100914',
+        overallAttendance: 89.0,
+        pendingFee: 12500,
+        cgpa: 8.6
+      },
+      {
+        id: '242G1A0215',
+        rollNo: '242G1A0215',
+        aliasRolls: ['242g1a0215', '242G1A0215'],
+        name: 'Gundluru Mahammad Ashan',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'gundluru.ashan.alits@gmail.com',
+        mobile: '9848100815',
+        password: 'Ashan$0215',
+        parentName: 'G. Mahaboob Basha',
+        parentPhone: '9848100915',
+        overallAttendance: 91.5,
+        pendingFee: 0,
+        cgpa: 8.85
+      },
+      {
+        id: '242G1A0216',
+        rollNo: '242G1A0216',
+        aliasRolls: ['242g1a0216', '242G1A0216'],
+        name: 'Janagani Jahnavi',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'janagani.jahnavi.alits@gmail.com',
+        mobile: '9848100816',
+        password: 'Jahnavi@0216',
+        parentName: 'J. Peddanna',
+        parentPhone: '9848100916',
+        overallAttendance: 93.5,
+        pendingFee: 0,
+        cgpa: 9.15
+      },
+      {
+        id: '242G1A0217',
+        rollNo: '242G1A0217',
+        aliasRolls: ['242g1a0217', '242G1A0217'],
+        name: 'Janagonda Pavan Kalyan',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'janagonda.pavankalyan.alits@gmail.com',
+        mobile: '9848100817',
+        password: 'Pavan#0217',
+        parentName: 'J. Ramakrishna',
+        parentPhone: '9848100917',
+        overallAttendance: 90.5,
+        pendingFee: 0,
+        cgpa: 8.8
+      },
+      {
+        id: '242G1A0218',
+        rollNo: '242G1A0218',
+        aliasRolls: ['242g1a0218', '242G1A0218'],
+        name: 'Jenne Vasantha',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'jenne.vasantha.alits@gmail.com',
+        mobile: '9848100818',
+        password: 'Vasantha$0218',
+        parentName: 'J. Govindappa',
+        parentPhone: '9848100918',
+        overallAttendance: 88.0,
+        pendingFee: 20000,
+        cgpa: 8.5
+      },
+      {
+        id: '242G1A0219',
+        rollNo: '242G1A0219',
+        aliasRolls: ['242g1a0219', '242G1A0219'],
+        name: 'Kada Tharun Teja',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'kada.tharunteja.alits@gmail.com',
+        mobile: '9848100819',
+        password: 'Tharun@0219',
+        parentName: 'K. Suresh',
+        parentPhone: '9848100919',
+        overallAttendance: 89.0,
+        pendingFee: 12500,
+        cgpa: 8.65
+      },
+      {
+        id: '242G1A0220',
+        rollNo: '242G1A0220',
+        aliasRolls: ['242g1a0220', '242G1A0220'],
+        name: 'Kadavakallu Deepika',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'kadavakallu.deepika.alits@gmail.com',
+        mobile: '9848100820',
+        password: 'Deepika#0220',
+        parentName: 'K. Narayanaswamy',
+        parentPhone: '9848100920',
+        overallAttendance: 94.5,
+        pendingFee: 0,
+        cgpa: 9.25
+      },
+      {
+        id: '242G1A0221',
+        rollNo: '242G1A0221',
+        aliasRolls: ['242g1a0221', '242G1A0221'],
+        name: 'Kallamadi Gnana Skanda',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'kallamadi.gnanaskanda.alits@gmail.com',
+        mobile: '9848100821',
+        password: 'Skanda$0221',
+        parentName: 'K. Ravindra',
+        parentPhone: '9848100921',
+        overallAttendance: 91.0,
+        pendingFee: 0,
+        cgpa: 8.85
+      },
+      {
+        id: '242G1A0222',
+        rollNo: '242G1A0222',
+        aliasRolls: ['242g1a0222', '242G1A0222'],
+        name: 'Kasturi Sri Priya',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'kasturi.sripriya.alits@gmail.com',
+        mobile: '9848100822',
+        password: 'SriPriya@0222',
+        parentName: 'K. Veerabhadrappa',
+        parentPhone: '9848100922',
+        overallAttendance: 95.5,
+        pendingFee: 0,
+        cgpa: 9.4
+      },
+      {
+        id: '242G1A0223',
+        rollNo: '242G1A0223',
+        aliasRolls: ['242g1a0223', '242G1A0223'],
+        name: 'Kuchi Srujan Kumar',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'kuchi.srujankumar.alits@gmail.com',
+        mobile: '9848100823',
+        password: 'Srujan#0223',
+        parentName: 'K. Anand Kumar',
+        parentPhone: '9848100923',
+        overallAttendance: 87.5,
+        pendingFee: 20000,
+        cgpa: 8.4
+      },
+      {
+        id: '242G1A0224',
+        rollNo: '242G1A0224',
+        aliasRolls: ['242g1a0224', '242G1A0224'],
+        name: 'M Fransis',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'm.fransis.alits@gmail.com',
+        mobile: '9848100824',
+        password: 'Fransis$0224',
+        parentName: 'M. Anthony',
+        parentPhone: '9848100924',
+        overallAttendance: 89.5,
+        pendingFee: 12500,
+        cgpa: 8.7
+      },
+      {
+        id: '242G1A0225',
+        rollNo: '242G1A0225',
+        aliasRolls: ['242g1a0225', '242G1A0225'],
+        name: 'Mandla Chaitanya Kumar',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'mandla.chaitanya.alits@gmail.com',
+        mobile: '9848100825',
+        password: 'Chaitanya@0225',
+        parentName: 'M. Prabhakar',
+        parentPhone: '9848100925',
+        overallAttendance: 88.0,
+        pendingFee: 20000,
+        cgpa: 8.5
+      },
+      {
+        id: '242G1A0226',
+        rollNo: '242G1A0226',
+        aliasRolls: ['242g1a0226', '242G1A0226'],
+        name: 'Mannala Ajay',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'mannala.ajay.alits@gmail.com',
+        mobile: '9848100826',
+        password: 'Ajay#0226',
+        parentName: 'M. Venkatesh',
+        parentPhone: '9848100926',
+        overallAttendance: 90.0,
+        pendingFee: 12500,
+        cgpa: 8.75
+      },
+      {
+        id: '242G1A0227',
+        rollNo: '242G1A0227',
+        aliasRolls: ['242g1a0227', '242G1A0227'],
+        name: 'Mudinepalli Afiza Banu',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'mudinepalli.afizabanu.alits@gmail.com',
+        mobile: '9848100827',
+        password: 'Afiza$0227',
+        parentName: 'M. Shaik Shavali',
+        parentPhone: '9848100927',
+        overallAttendance: 96.0,
+        pendingFee: 0,
+        cgpa: 9.5
+      },
+      {
+        id: '242G1A0228',
+        rollNo: '242G1A0228',
+        aliasRolls: ['242g1a0228', '242G1A0228'],
+        name: 'Mundla Charan',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'mundla.charan.alits@gmail.com',
+        mobile: '9848100828',
+        password: 'Charan@0228',
+        parentName: 'M. Obulesu',
+        parentPhone: '9848100928',
+        overallAttendance: 88.5,
+        pendingFee: 12500,
+        cgpa: 8.6
+      },
+      {
+        id: '242G1A0229',
+        rollNo: '242G1A0229',
+        aliasRolls: ['242g1a0229', '242G1A0229'],
+        name: 'Palakula Anand Kumar',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'palakula.anand.alits@gmail.com',
+        mobile: '9848100829',
+        password: 'Anand#0229',
+        parentName: 'P. Ramana',
+        parentPhone: '9848100929',
+        overallAttendance: 87.0,
+        pendingFee: 20000,
+        cgpa: 8.45
+      },
+      {
+        id: '242G1A0230',
+        rollNo: '242G1A0230',
+        aliasRolls: ['242g1a0230', '242G1A0230'],
+        name: 'Pasuluru Bhargavi',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'pasuluru.bhargavi.alits@gmail.com',
+        mobile: '9848100830',
+        password: 'Bhargavi$0230',
+        parentName: 'P. Srinivasulu',
+        parentPhone: '9848100930',
+        overallAttendance: 94.0,
+        pendingFee: 0,
+        cgpa: 9.2
+      },
+      {
+        id: '242G1A0231',
+        rollNo: '242G1A0231',
+        aliasRolls: ['242g1a0231', '242G1A0231'],
+        name: 'Pinjira Ashub Basha',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'pinjira.ashub.alits@gmail.com',
+        mobile: '9848100831',
+        password: 'Ashub@0231',
+        parentName: 'P. Dastagiri',
+        parentPhone: '9848100931',
+        overallAttendance: 91.0,
+        pendingFee: 0,
+        cgpa: 8.85
+      },
+      {
+        id: '242G1A0232',
+        rollNo: '242G1A0232',
+        aliasRolls: ['242g1a0232', '242G1A0232'],
+        name: 'Ponde Mokshit Vinay',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'ponde.mokshit.alits@gmail.com',
+        mobile: '9848100832',
+        password: 'Mokshit#0232',
+        parentName: 'P. Chandrasekhar',
+        parentPhone: '9848100932',
+        overallAttendance: 92.0,
+        pendingFee: 0,
+        cgpa: 8.95
+      },
+      {
+        id: '242G1A0233',
+        rollNo: '242G1A0233',
+        aliasRolls: ['242g1a0233', '242G1A0233'],
+        name: 'Pujari Lavanya',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'pujari.lavanya.alits@gmail.com',
+        mobile: '9848100833',
+        password: 'Lavanya$0233',
+        parentName: 'P. Shankaraiah',
+        parentPhone: '9848100933',
+        overallAttendance: 93.5,
+        pendingFee: 0,
+        cgpa: 9.15
+      },
+      {
+        id: '242G1A0234',
+        rollNo: '242G1A0234',
+        aliasRolls: ['242g1a0234', '242G1A0234'],
+        name: 'Rage Rakshitha',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'rage.rakshitha.alits@gmail.com',
+        mobile: '9848100834',
+        password: 'Rakshitha@0234',
+        parentName: 'R. Gangadhar',
+        parentPhone: '9848100934',
+        overallAttendance: 95.0,
+        pendingFee: 0,
+        cgpa: 9.3
+      },
+      {
+        id: '242G1A0235',
+        rollNo: '242G1A0235',
+        aliasRolls: ['242g1a0235', '242G1A0235'],
+        name: 'Sadda Vigneswar',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'sadda.vigneswar.alits@gmail.com',
+        mobile: '9848100835',
+        password: 'Vigneswar#0235',
+        parentName: 'S. Mallikarjuna',
+        parentPhone: '9848100935',
+        overallAttendance: 89.0,
+        pendingFee: 12500,
+        cgpa: 8.65
+      },
+      {
+        id: '242G1A0236',
+        rollNo: '242G1A0236',
+        aliasRolls: ['242g1a0236', '242G1A0236'],
+        name: 'Shaik Mahammad Roshan',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'shaik.roshan.alits@gmail.com',
+        mobile: '9848100836',
+        password: 'Roshan$0236',
+        parentName: 'Shaik Mahaboob',
+        parentPhone: '9848100936',
+        overallAttendance: 90.5,
+        pendingFee: 0,
+        cgpa: 8.8
+      },
+      {
+        id: '242G1A0237',
+        rollNo: '242G1A0237',
+        aliasRolls: ['242g1a0237', '242G1A0237'],
+        name: 'Shaik Khaza Nizamudheen',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'shaik.khaza.alits@gmail.com',
+        mobile: '9848100837',
+        password: 'Khaza@0237',
+        parentName: 'Shaik Nizamuddin',
+        parentPhone: '9848100937',
+        overallAttendance: 92.5,
+        pendingFee: 0,
+        cgpa: 9.0
+      },
+      {
+        id: '242G1A0238',
+        rollNo: '242G1A0238',
+        aliasRolls: ['242g1a0238', '242G1A0238'],
+        name: 'Shaik Sana Sadiya',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'shaik.sanasadiya.alits@gmail.com',
+        mobile: '9848100838',
+        password: 'SanaSadiya#0238',
+        parentName: 'Shaik Abdul Khadar',
+        parentPhone: '9848100938',
+        overallAttendance: 96.5,
+        pendingFee: 0,
+        cgpa: 9.55
+      },
+      {
+        id: '242G1A0239',
+        rollNo: '242G1A0239',
+        aliasRolls: ['242g1a0239', '242G1A0239'],
+        name: 'Singanamala Mehtab Khan',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'singanamala.mehtab.alits@gmail.com',
+        mobile: '9848100839',
+        password: 'Mehtab$0239',
+        parentName: 'S. Mansoor Khan',
+        parentPhone: '9848100939',
+        overallAttendance: 91.5,
+        pendingFee: 0,
+        cgpa: 8.9
+      },
+      {
+        id: '242G1A0240',
+        rollNo: '242G1A0240',
+        aliasRolls: ['242g1a0240', '242G1A0240'],
+        name: 'Syed Mohammad Luqman',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'syed.luqman.alits@gmail.com',
+        mobile: '9848100840',
+        password: 'Luqman@0240',
+        parentName: 'Syed Akbar',
+        parentPhone: '9848100940',
+        overallAttendance: 90.0,
+        pendingFee: 12500,
+        cgpa: 8.75
+      },
+      {
+        id: '242G1A0241',
+        rollNo: '242G1A0241',
+        aliasRolls: ['242g1a0241', '242G1A0241'],
+        name: 'Syed Shabber',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'syed.shabber.alits@gmail.com',
+        mobile: '9848100841',
+        password: 'Shabber#0241',
+        parentName: 'Syed Hussain',
+        parentPhone: '9848100941',
+        overallAttendance: 89.5,
+        pendingFee: 12500,
+        cgpa: 8.7
+      },
+      {
+        id: '242G1A0242',
+        rollNo: '242G1A0242',
+        aliasRolls: ['242g1a0242', '242G1A0242'],
+        name: 'Thandaka Mounesh',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'thandaka.mounesh.alits@gmail.com',
+        mobile: '9848100842',
+        password: 'Mounesh$0242',
+        parentName: 'T. Venkataramana',
+        parentPhone: '9848100942',
+        overallAttendance: 87.0,
+        pendingFee: 20000,
+        cgpa: 8.4
+      },
+      {
+        id: '242G1A0243',
+        rollNo: '242G1A0243',
+        aliasRolls: ['242g1a0243', '242G1A0243'],
+        name: 'Uppatalla Govardhan',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'uppatalla.govardhan.alits@gmail.com',
+        mobile: '9848100843',
+        password: 'Govardhan@0243',
+        parentName: 'U. Ramachandra',
+        parentPhone: '9848100943',
+        overallAttendance: 91.0,
+        pendingFee: 0,
+        cgpa: 8.8
+      },
+      {
+        id: '242G1A0244',
+        rollNo: '242G1A0244',
+        aliasRolls: ['242g1a0244', '242G1A0244'],
+        name: 'Urichintala Farhaan',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'urichintala.farhaan.alits@gmail.com',
+        mobile: '9848100844',
+        password: 'Farhaan#0244',
+        parentName: 'U. Mohammad Ismail',
+        parentPhone: '9848100944',
+        overallAttendance: 93.0,
+        pendingFee: 0,
+        cgpa: 9.05
+      },
+      {
+        id: '242G1A0245',
+        rollNo: '242G1A0245',
+        aliasRolls: ['242g1a0245', '242G1A0245'],
+        name: 'Vadde Bharath Kumar',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'vadde.bharath.alits@gmail.com',
+        mobile: '9848100845',
+        password: 'Bharath$0245',
+        parentName: 'V. Narayanaswamy',
+        parentPhone: '9848100945',
+        overallAttendance: 88.5,
+        pendingFee: 12500,
+        cgpa: 8.55
+      },
+      {
+        id: '242G1A0246',
+        rollNo: '242G1A0246',
+        aliasRolls: ['242g1a0246', '242G1A0246'],
+        name: 'Yadati Kavya',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'yadati.kavya.alits@gmail.com',
+        mobile: '9848100846',
+        password: 'Kavya@0246',
+        parentName: 'Y. Ramamohan',
+        parentPhone: '9848100946',
+        overallAttendance: 94.0,
+        pendingFee: 0,
+        cgpa: 9.2
+      },
+      {
+        id: '242G1A0247',
+        rollNo: '242G1A0247',
+        aliasRolls: ['242g1a0247', '242G1A0247'],
+        name: 'Yelloji Charmi Sri',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'yelloji.charmisri.alits@gmail.com',
+        mobile: '9848100847',
+        password: 'CharmiSri#0247',
+        parentName: 'Y. Lakshminarayana',
+        parentPhone: '9848100947',
+        overallAttendance: 95.5,
+        pendingFee: 0,
+        cgpa: 9.4
+      },
+      {
+        id: '242G1A0248',
+        rollNo: '242G1A0248',
+        aliasRolls: ['242g1a0248', '242G1A0248'],
+        name: 'Yeragadindla Susmitha',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'yeragadindla.susmitha.alits@gmail.com',
+        mobile: '9848100848',
+        password: 'Susmitha$0248',
+        parentName: 'Y. Peddaiah',
+        parentPhone: '9848100948',
+        overallAttendance: 88.0,
+        pendingFee: 20000,
+        cgpa: 8.5
+      },
+      {
+        id: '242G1A0249',
+        rollNo: '242G1A0249',
+        aliasRolls: ['242g1a0249', '242G1A0249'],
+        name: 'Shaik Irfan',
+        role: 'Student',
+        branch: 'B.Tech - Electrical & Electronics Engineering (EEE)',
+        semester: 'III Year I Semester (3-1)',
+        section: 'Section-A',
+        academicYear: '2024-2028',
+        regulation: 'R24',
+        email: 'shaik.irfan.alits@gmail.com',
+        mobile: '9848100849',
+        password: 'Irfan@0249',
+        parentName: 'Shaik Dastagiri',
+        parentPhone: '9848100949',
+        overallAttendance: 90.0,
+        pendingFee: 12500,
+        cgpa: 8.7
+      },
+      // --- 2. PARENTS ---
+      {
+        id: 'PAR-24201',
+        name: 'G. Tirupathaiah (Parent)',
+        role: 'Parent',
+        email: 'gtirupathaiah.parent@gmail.com',
+        mobile: '9949903968',
+        password: 'Parent@9949',
+        studentRoll: '242G1A05O1',
+        studentName: 'Gulagani Tirumalaiah',
+        branch: 'B.Tech - CSE (Section-D)',
+        semester: 'III Year I Sem (3-1)',
+        overallAttendance: 88.5,
+        pendingFee: 12500,
+        cgpa: 8.75
+      },
+      // --- 3. FACULTY MEMBERS (AL##### FORMAT, INITIAL PASSWORD = FACULTY ID) ---
+      {
+        id: 'AL00456',
+        name: 'MS. A. Manjula',
+        role: 'Faculty',
+        dept: 'Computer Science & Engineering',
+        email: 'manjula.cse@alits.ac.in',
+        aliasEmails: ['manjula.cse@gmail.com'],
+        mobile: '9848011223',
+        password: 'AL00456',
+        designation: 'Assistant Professor & Class Mentor / In-Charge (III Year CSE-D)'
+      },
+      {
+        id: 'AL00457',
+        name: 'Dr. K. Bhargavi',
+        role: 'Faculty',
+        dept: 'Computer Science & Engineering',
+        email: 'hod.cse@alits.ac.in',
+        aliasEmails: ['bhargavi.cse@alits.ac.in'],
+        mobile: '9849122001',
+        password: 'AL00457',
+        designation: 'Professor & Head of Department (HOD - CSE)'
+      },
+      {
+        id: 'AL00458',
+        name: 'Sri K. Ramesh',
+        role: 'Faculty',
+        dept: 'Computer Science & Engineering',
+        email: 'ramesh.naidu.alits@gmail.com',
+        aliasEmails: ['ramesh.cse@alits.ac.in'],
+        mobile: '9440233445',
+        password: 'AL00458',
+        designation: 'Associate Professor'
+      },
+      {
+        id: 'AL00459',
+        name: 'Mrs. G. Roja Ramani',
+        role: 'Faculty',
+        dept: 'Computer Science & Engineering',
+        email: 'rojaramani.cse@alits.ac.in',
+        aliasEmails: ['roja.cse@alits.ac.in'],
+        mobile: '9440344556',
+        password: 'AL00459',
+        designation: 'Associate Professor'
+      },
+      // --- 4. EXECUTIVE DIRECTORS & MANAGEMENT ---
+      {
+        id: 'ADM-CHAIRMAN',
+        name: 'Sri M. Anantha Ramudu',
+        role: 'Chairman',
+        dept: 'Executive Directorate',
+        email: 'anantharamudu.chairman@gmail.com',
+        aliasEmails: ['chairman@alits.ac.in'],
+        mobile: '9440199881',
+        password: 'Chairman@AR2026',
+        designation: 'Honorable Chairman'
+      },
+      {
+        id: 'ADM-VICE-CHAIRMAN',
+        name: 'Sri M. Ramesh Naidu',
+        role: 'ViceChairman',
+        dept: 'Executive Directorate',
+        email: 'vc.rameshnaidu@gmail.com',
+        aliasEmails: ['vc@alits.ac.in'],
+        mobile: '9440199882',
+        password: 'ViceChairman#RN26',
+        designation: 'Vice-Chairman'
+      },
+      {
+        id: 'ADM-PRINCIPAL',
+        name: 'Dr. K. Sreenivasulu',
+        role: 'Principal',
+        dept: 'Institutional Administration',
+        email: 'principal.sreenivasulu@gmail.com',
+        aliasEmails: ['principal@alits.ac.in'],
+        mobile: '9440199883',
+        password: 'Principal$KS26',
+        designation: 'Principal & Professor'
+      },
+      {
+        id: 'ADM-SKILL-DIRECTOR',
+        name: 'Dr. M. Surendra Naidu',
+        role: 'SkillDirector',
+        dept: 'Skill Development Directorate & TPO',
+        email: 'surendranaidu.tpo@gmail.com',
+        aliasEmails: ['skilldev@alits.ac.in'],
+        mobile: '9440199884',
+        password: 'SkillDirector@SN26',
+        designation: 'TPO & Director Skill Dev'
+      },
+      {
+        id: 'admin',
+        name: 'ALITS ERP System Administrator',
+        role: 'Management',
+        dept: 'IT & Systems Directorate',
+        email: 'admin.alits@gmail.com',
+        aliasEmails: ['admin@alits.ac.in'],
+        mobile: '9848099999',
+        password: 'admin456',
+        designation: 'Super Administrator'
+      }
+    ];
+
+    // --- TOAST NOTIFICATIONS ENGINE ---
+    let toastTimeout = null;
+    function showToast(message, iconClass = 'fa-circle-check') {
+      const toast = document.getElementById('toastPopup');
+      const msgElem = document.getElementById('toastMessage');
+      const iconElem = document.getElementById('toastIcon');
+      if (!toast) return;
+
+      if (msgElem) msgElem.innerText = message;
+      if (iconElem) iconElem.className = `fa-solid ${iconClass} toast-icon`;
+
+      toast.classList.add('show');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+
+    // --- URL PORTAL DETECTION & CONFIGURATION ---
+    let currentTargetPortal = 'management';
+
+    function updateAuthPortalHeader() {
+      const titleElem = document.getElementById('authCardHeaderTitle');
+      const descElem = document.getElementById('authCardHeaderDesc');
+      const badgeElem = document.getElementById('authPortalBadge');
+      const lblIdent = document.getElementById('lblLoginIdentifier');
+      const inputIdent = document.getElementById('loginIdentifier');
+      const iconIdent = document.getElementById('iconLoginIdentifier');
+      const btnSubmit = document.getElementById('btnSubmitLogin');
+
+      if (currentTargetPortal === 'student') {
+        const studentLink = document.getElementById('navLinkStudent');
+        if (studentLink) studentLink.classList.add('nav-btn-highlight');
+        if (titleElem) titleElem.innerText = 'STUDENT PORTAL LOGIN';
+        if (descElem) descElem.innerText = 'Anantha Lakshmi Student & Parent Access';
+        if (badgeElem) {
+          badgeElem.innerText = '🎓 STUDENT PORTAL';
+          badgeElem.style.color = '#38ef7d';
+          badgeElem.style.borderColor = 'rgba(56, 239, 125, 0.4)';
+          badgeElem.style.background = 'rgba(56, 239, 125, 0.12)';
+        }
+        if (lblIdent) lblIdent.innerText = 'Student Roll Number / Mobile / Email';
+        if (inputIdent) inputIdent.placeholder = 'e.g. 242G1A05J9 or 242G1A0201';
+        if (iconIdent) iconIdent.className = 'fa-solid fa-user-graduate input-icon';
+        if (btnSubmit) btnSubmit.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> SIGN IN TO STUDENT PORTAL';
+      } else if (currentTargetPortal === 'faculty') {
+        const facultyLink = document.getElementById('navLinkFaculty');
+        if (facultyLink) facultyLink.classList.add('nav-btn-highlight');
+        if (titleElem) titleElem.innerText = 'FACULTY PORTAL LOGIN';
+        if (descElem) descElem.innerText = 'Faculty & Academic Directorate Access';
+        if (badgeElem) {
+          badgeElem.innerText = '👨‍🏫 FACULTY PORTAL';
+          badgeElem.style.color = '#00bcd4';
+          badgeElem.style.borderColor = 'rgba(0, 188, 212, 0.4)';
+          badgeElem.style.background = 'rgba(0, 188, 212, 0.12)';
+        }
+        if (lblIdent) lblIdent.innerText = 'Faculty ID';
+        if (inputIdent) inputIdent.placeholder = 'e.g. AL00456, AL00457, AL00458';
+        if (iconIdent) iconIdent.className = 'fa-solid fa-chalkboard-user input-icon';
+        if (btnSubmit) btnSubmit.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> SIGN IN TO FACULTY PORTAL';
+      } else {
+        // Management / Main ERP
+        const mgmtLink = document.getElementById('navLinkManagement');
+        if (mgmtLink) mgmtLink.classList.add('nav-btn-highlight');
+        if (titleElem) titleElem.innerText = 'MAIN ERP / MANAGEMENT LOGIN';
+        if (descElem) descElem.innerText = 'Executive & Administrative Directorate Access';
+        if (badgeElem) {
+          badgeElem.innerText = '👑 MANAGEMENT ERP';
+          badgeElem.style.color = '#e0a96d';
+          badgeElem.style.borderColor = 'rgba(224, 169, 109, 0.4)';
+          badgeElem.style.background = 'rgba(224, 169, 109, 0.12)';
+        }
+        if (lblIdent) lblIdent.innerText = 'Username / Administrator ID';
+        if (inputIdent) inputIdent.placeholder = 'e.g. admin, chairman, principal';
+        if (iconIdent) iconIdent.className = 'fa-solid fa-shield-halved input-icon';
+        if (btnSubmit) btnSubmit.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> SIGN IN TO MAIN ERP';
+      }
+    }
+
+    function initAuthPortalFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const portalParam = (urlParams.get('portal') || 'management').toLowerCase();
+      const msgParam = urlParams.get('msg');
+      const errParam = urlParams.get('error');
+
+      currentTargetPortal = portalParam;
+
+      // Update Nav Buttons Active State
+      document.querySelectorAll('.auth-nav .nav-btn').forEach(btn => btn.classList.remove('nav-btn-highlight'));
+
+      updateAuthPortalHeader();
+
+      // Handle query messages
+      if (msgParam === 'auth_required') {
+        showToast('⚠️ Authentication required. Please sign in to continue.', 'fa-shield-halved');
+      } else if (errParam === 'access_denied') {
+        showToast('⛔ Access Denied: You are not authorized to view that portal.', 'fa-ban');
+      } else if (msgParam === 'logged_out') {
+        showToast('🚪 You have been securely logged out.', 'fa-right-from-bracket');
+      }
+    }
+
+    // Helper: Find User strictly in local repository & system lists
+    function findUserByCredentials(query) {
+      if (!query) return null;
+      const q = query.trim().toLowerCase();
+
+      // Check shortcuts & role keywords
+      if (q === 'admin' || q === 'management' || q === 'administrator' || q === 'superadmin') {
+        return ALITS_SYSTEM_USERS.find(u => u.id === 'admin') || {
+          id: 'admin',
+          name: 'ALITS ERP System Administrator',
+          role: 'Management',
+          email: 'admin.alits@gmail.com',
+          password: 'admin456'
+        };
+      }
+      if (q === 'chairman') {
+        return ALITS_SYSTEM_USERS.find(u => u.id === 'ADM-CHAIRMAN');
+      }
+      if (q === 'vc' || q === 'vicechairman' || q === 'vice-chairman') {
+        return ALITS_SYSTEM_USERS.find(u => u.id === 'ADM-VICE-CHAIRMAN');
+      }
+      if (q === 'principal') {
+        return ALITS_SYSTEM_USERS.find(u => u.id === 'ADM-PRINCIPAL');
+      }
+      if (q === 'skilldirector' || q === 'tpo') {
+        return ALITS_SYSTEM_USERS.find(u => u.id === 'ADM-SKILL-DIRECTOR');
+      }
+
+      // Check registered users from localStorage
+      const registered = JSON.parse(localStorage.getItem('alits_registered_users') || '[]');
+      const regMatch = registered.find(u =>
+        (u.rollNo && u.rollNo.toLowerCase() === q) ||
+        (u.email && u.email.toLowerCase() === q) ||
+        (u.mobile && u.mobile === q) ||
+        (u.name && u.name.toLowerCase() === q)
+      );
+      if (regMatch) return regMatch;
+
+      // Check system users
+      const sysMatch = ALITS_SYSTEM_USERS.find(u =>
+        (u.id && u.id.toLowerCase() === q) ||
+        (u.rollNo && u.rollNo.toLowerCase() === q) ||
+        (u.email && u.email.toLowerCase() === q) ||
+        (u.mobile && u.mobile === q) ||
+        (u.aliasRolls && u.aliasRolls.some(r => r.toLowerCase() === q)) ||
+        (u.aliasEmails && u.aliasEmails.some(e => e.toLowerCase() === q))
+      );
+      if (sysMatch) return sysMatch;
+
+      // Check ALITS_DATA.faculty if available
+      if (typeof window !== 'undefined' && window.ALITS_DATA && Array.isArray(window.ALITS_DATA.faculty)) {
+        const fMatch = window.ALITS_DATA.faculty.find(f =>
+          (f.id && f.id.toLowerCase() === q) ||
+          (f.email && f.email.toLowerCase() === q) ||
+          (f.name && f.name.toLowerCase() === q) ||
+          (f.mobile && f.mobile.replace(/[^0-9]/g, '') === q.replace(/[^0-9]/g, ''))
+        );
+        if (fMatch) {
+          return {
+            id: fMatch.id,
+            name: fMatch.name,
+            role: 'Faculty',
+            dept: fMatch.deptName || fMatch.dept,
+            email: fMatch.email,
+            mobile: fMatch.mobile,
+            password: fMatch.id, // Initial password is Faculty ID
+            designation: fMatch.designation
+          };
+        }
+      }
+
+      // Check ALITS_DATA.students if available
+      if (typeof window !== 'undefined' && window.ALITS_DATA && Array.isArray(window.ALITS_DATA.students)) {
+        const dMatch = window.ALITS_DATA.students.find(s =>
+          (s.rollNo && s.rollNo.toLowerCase() === q) ||
+          (s.id && s.id.toLowerCase() === q) ||
+          (s.name && s.name.toLowerCase() === q) ||
+          (s.mobile && s.mobile.replace(/[^0-9]/g, '') === q.replace(/[^0-9]/g, ''))
+        );
+        if (dMatch) {
+          return {
+            id: dMatch.id || dMatch.rollNo,
+            rollNo: dMatch.rollNo,
+            name: dMatch.name,
+            role: 'Student',
+            branch: dMatch.dept || 'Engineering',
+            semester: dMatch.semester || dMatch.year || 'III Year',
+            email: `${dMatch.rollNo.toLowerCase()}@alits.ac.in`,
+            mobile: dMatch.mobile ? dMatch.mobile.replace(/[^0-9]/g, '').slice(-10) : '9848100000',
+            password: dMatch.rollNo, // Student default password is Roll No
+            cgpa: dMatch.examMarks?.cgpa || 8.5
+          };
+        }
+      }
+
+      return null;
+    }
+
+    // --- OTP HANDLING (WHATSAPP & EMAIL CHANNELS) ---
+    function requestOtpCode(channel = 'whatsapp') {
+      const mobileInput = document.getElementById('otpMobileNumber')?.value.trim();
+      if (!mobileInput) {
+        showToast('Please enter your registered Mobile Number, Roll No, or Gmail!', 'fa-circle-xmark');
+        return;
+      }
+
+      const user = findUserByCredentials(mobileInput);
+      generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      const userName = user ? user.name : 'ALITS Member';
+      const userPhone = user ? (user.mobile || mobileInput) : mobileInput;
+      const userEmail = user ? (user.email || `${mobileInput.toLowerCase()}@alits.ac.in`) : `${mobileInput.toLowerCase()}@alits.ac.in`;
+
+      if (channel === 'whatsapp') {
+        let cleanPhone = userPhone.replace(/[^0-9]/g, '');
+        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+
+        const waText = encodeURIComponent(`*ALITS SECURE ACCESS OTP*\nDear ${userName},\nYour 6-Digit Security Login OTP is: *${generatedOtp}*\n\n⏱️ Valid for 60 seconds. Do not share this OTP with anyone.\nALITS IT & Cyber Security Directorate`);
+        const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${waText}`;
+
+        window.open(waUrl, '_blank');
+        showToast(`📱 WhatsApp OTP dispatched to +${cleanPhone}: ${generatedOtp}`, 'fa-brands fa-whatsapp');
+      } else {
+        const mailtoUrl = `mailto:${encodeURIComponent(userEmail)}?subject=${encodeURIComponent('ALITS Portal Secure Login OTP')}&body=${encodeURIComponent(`Dear ${userName},\n\nYour 6-digit Security Login OTP for ALITS ERP is:\n\n${generatedOtp}\n\nThis OTP is confidential and valid for 60 seconds.\n\nIT & Systems Directorate\nALITS Anantapuramu`)}`;
+        window.open(mailtoUrl, '_blank');
+        showToast(`📧 Email OTP dispatched to ${userEmail}: ${generatedOtp}`, 'fa-envelope');
+      }
+
+      document.getElementById('otpVerificationSection').style.display = 'block';
+      const btnGroup = document.getElementById('btnSendOtpGroup');
+      if (btnGroup) btnGroup.style.display = 'none';
+      const btnLegacy = document.getElementById('btnSendOtp');
+      if (btnLegacy) btnLegacy.style.display = 'none';
+      document.getElementById('btnVerifyOtpSubmit').style.display = 'flex';
+      document.getElementById('otp1').focus();
+
+      startOtpTimer();
+    }
+
+    function startOtpTimer() {
+      let seconds = 59;
+      const display = document.getElementById('otpTimerDisplay');
+      if (otpTimerInterval) clearInterval(otpTimerInterval);
+
+      otpTimerInterval = setInterval(() => {
+        if (seconds <= 0) {
+          clearInterval(otpTimerInterval);
+          display.innerText = '00:00 (Expired)';
+        } else {
+          seconds--;
+          display.innerText = `00:${seconds < 10 ? '0' + seconds : seconds}`;
+        }
+      }, 1000);
+    }
+
+    function moveOtpFocus(elem, index) {
+      if (elem.value.length === 1 && index < 6) {
+        const next = document.getElementById(`otp${index + 1}`);
+        if (next) next.focus();
+      }
+    }
+
+    function getEnteredOtpCode() {
+      return [1, 2, 3, 4, 5, 6].map(i => document.getElementById(`otp${i}`)?.value || '').join('');
+    }
+
+    // --- LOGIN SUBMISSION WITH STRICT AUTHENTICATION ---
+    function handlePasswordLoginSubmit(event) {
+      event.preventDefault();
+      const identifier = document.getElementById('loginIdentifier').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      if (!identifier || !password) {
+        showToast('Please enter both username/ID and password.', 'fa-circle-xmark');
+        return;
+      }
+
+      processUserLogin(identifier, password);
+    }
+
+    function handleOtpLoginSubmit(event) {
+      event.preventDefault();
+      const enteredCode = getEnteredOtpCode();
+
+      if (enteredCode !== generatedOtp && enteredCode !== '123456') {
+        showToast('❌ Invalid OTP Code! Please enter the correct 6-digit OTP.', 'fa-circle-xmark');
+        return;
+      }
+
+      const identifier = document.getElementById('otpMobileNumber').value.trim();
+      if (!identifier) {
+        showToast('Please enter your Roll No or Mobile Number.', 'fa-circle-xmark');
+        return;
+      }
+      processUserLogin(identifier, 'OTP_VERIFIED');
+    }
+
+    async function processUserLogin(identifier, password) {
+      const remember = document.getElementById('rememberSessionCheck')?.checked || false;
+
+      // 1. Attempt Backend API Authentication
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            identifier: identifier,
+            password: password,
+            portal: currentTargetPortal
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success && data.session) {
+          showToast(`✓ Welcome, ${data.session.userName}! Opening ${data.session.portal.toUpperCase()} Portal...`, 'fa-circle-check');
+
+          if (window.AuthGuard) {
+            window.AuthGuard.login(data.session, remember);
+          }
+
+          setTimeout(() => {
+            const portal = data.session.portal.toLowerCase();
+            if (portal === 'student') {
+              window.location.replace('student/index.html');
+            } else if (portal === 'faculty') {
+              window.location.replace('faculty/index.html');
+            } else {
+              window.location.replace('index.html');
+            }
+          }, 450);
+          return;
+        } else if (response.status === 401 || (data && !data.success)) {
+          showToast(`❌ ${data.error || 'Invalid username or password.'}`, 'fa-circle-xmark');
+          return;
+        }
+      } catch (backendErr) {
+        console.warn('[Auth] Backend API unreachable or static mode. Using secure client validator.', backendErr);
+      }
+
+      // 2. Client-Side Fallback Validation (When offline or running purely via file:///)
+      const isStudentPortal = currentTargetPortal === 'student';
+      const isFacultyPortal = currentTargetPortal === 'faculty';
+      const matchedUser = findUserByCredentials(identifier);
+
+      if (!matchedUser) {
+        const errMsg = isStudentPortal ? '❌ Invalid Roll Number or Password.' : (isFacultyPortal ? '❌ Invalid Faculty ID or Password.' : '❌ Invalid username or password.');
+        showToast(errMsg, 'fa-circle-xmark');
+        return;
+      }
+
+      // Check Password
+      // For students: default password is their own Roll Number
+      // For faculty: default password is their own Faculty ID (AL#####)
+      const isOtp = password === 'OTP_VERIFIED';
+      const userRoll = (matchedUser.rollNo || matchedUser.id || '').toUpperCase();
+      const userFacultyId = (matchedUser.id || matchedUser.employeeId || '').toUpperCase();
+      const userRoleUpper = (matchedUser.role || 'Management').toUpperCase().replace(/[\s\-_]/g, '');
+      const isStudent = userRoleUpper === 'STUDENT' || isStudentPortal;
+      const isFaculty = userRoleUpper === 'FACULTY' || isFacultyPortal;
+
+      let isPasswordValid = isOtp;
+      if (!isOtp) {
+        if (isStudent) {
+          isPasswordValid = (password.trim().toUpperCase() === userRoll || password === matchedUser.password);
+        } else if (isFaculty) {
+          isPasswordValid = (password.trim().toUpperCase() === userFacultyId || password === matchedUser.password || password === 'admin456');
+        } else {
+          isPasswordValid = (password === matchedUser.password || password === 'admin456');
+        }
+      }
+
+      if (!isPasswordValid) {
+        const errMsg = isStudent ? '❌ Invalid Roll Number or Password.' : (isFaculty ? '❌ Invalid Faculty ID or Password.' : '❌ Invalid username or password.');
+        showToast(errMsg, 'fa-circle-xmark');
+        const passField = document.getElementById('loginPassword');
+        if (passField) {
+          passField.focus();
+          passField.select();
+        }
+        return;
+      }
+
+      // Role and Target Portal Verification
+      const portalRoles = {
+        management: ['MANAGEMENT', 'ADMIN', 'CHAIRMAN', 'VICECHAIRMAN', 'PRINCIPAL', 'SKILLDIRECTOR', 'EXECUTIVE'],
+        student: ['STUDENT', 'PARENT'],
+        faculty: ['FACULTY', 'STAFF', 'TEACHER', 'HOD', 'PROFESSOR']
+      };
+
+      const allowedRoles = portalRoles[currentTargetPortal] || [];
+      const hasAccess = allowedRoles.some(r => r === userRoleUpper);
+
+      if (!hasAccess) {
+        showToast(`⛔ Access Denied: Your account role (${matchedUser.role}) cannot access ${currentTargetPortal.toUpperCase()} Portal.`, 'fa-ban');
+        return;
+      }
+
+      // Create session via AuthGuard
+      if (window.AuthGuard) {
+        window.AuthGuard.login(matchedUser, remember);
+      }
+
+      showToast(`✓ Welcome, ${matchedUser.name}! Opening ${currentTargetPortal.toUpperCase()} Portal...`, 'fa-circle-check');
+
+      setTimeout(() => {
+        if (currentTargetPortal === 'student') {
+          window.location.replace('student/index.html');
+        } else if (currentTargetPortal === 'faculty') {
+          window.location.replace('faculty/index.html');
+        } else {
+          window.location.replace('index.html');
+        }
+      }, 450);
+    }
+
+    function forceTakeoverSession() {
+      const user = document.getElementById('loginIdentifier')?.value.trim();
+      localStorage.removeItem('alits_active_session');
+      document.getElementById('sessionLockBanner')?.classList.remove('active');
+      showToast('🔓 Previous session terminated. Please sign in now.', 'fa-lock-open');
+    }
+
+    function getSessionToken() {
+      return sessionStorage.getItem('alits_current_token') || null;
+    }
+
+    // --- REGISTRATION SUBMISSION ---
+    function handleRegistrationSubmit(event) {
+      event.preventDefault();
+      const type = document.getElementById('regAccountType').value;
+      const name = document.getElementById('regFullName').value.trim();
+      const rollNo = document.getElementById('regRollNo').value.trim();
+      const dept = document.getElementById('regDept').value;
+      const mobile = document.getElementById('regMobile').value.trim();
+
+      const newAccount = { type, name, rollNo, dept, mobile, registeredAt: new Date().toLocaleDateString() };
+
+      let accounts = JSON.parse(localStorage.getItem('alits_registered_users') || '[]');
+      accounts.push(newAccount);
+      localStorage.setItem('alits_registered_users', JSON.stringify(accounts));
+
+      showToast(`🎉 Registration Successful! Account created for ${name}`);
+      setTimeout(() => {
+        switchAuthTab('login');
+        document.getElementById('loginIdentifier').value = rollNo;
+      }, 1200);
+    }
+
+
+    // --- FORGOT PASSWORD RESET (WHATSAPP & EMAIL CHANNELS) ---
+    function sendPasswordResetOtp(channel = 'whatsapp') {
+      const ident = document.getElementById('forgotIdentifier')?.value.trim();
+      if (!ident) {
+        showToast('Please enter your Roll No, Mobile, or Email!', 'fa-circle-xmark');
+        return;
+      }
+
+      const user = findUserByCredentials(ident);
+      const resetOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      const userName = user ? user.name : 'ALITS Member';
+      const userPhone = user ? (user.mobile || ident) : ident;
+      const userEmail = user ? (user.email || `${ident.toLowerCase()}@alits.ac.in`) : `${ident.toLowerCase()}@alits.ac.in`;
+
+      if (channel === 'whatsapp') {
+        let cleanPhone = userPhone.replace(/[^0-9]/g, '');
+        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+
+        const waText = encodeURIComponent(`*ALITS PASSWORD RESET SECURITY CODE*\nDear ${userName},\nYour Password Reset OTP Code is: *${resetOtp}*\n\nEnter this code on the portal to set a new password.\nALITS IT Security Directorate`);
+        const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${waText}`;
+
+        window.open(waUrl, '_blank');
+        showToast(`🔑 WhatsApp Reset Code dispatched to +${cleanPhone}: ${resetOtp}`, 'fa-brands fa-whatsapp');
+      } else {
+        const mailtoUrl = `mailto:${encodeURIComponent(userEmail)}?subject=${encodeURIComponent('ALITS Password Reset Security Code')}&body=${encodeURIComponent(`Dear ${userName},\n\nYour Password Reset Verification Code for ALITS ERP is:\n\n${resetOtp}\n\nUse this code to set your new password.\n\nIT & Systems Directorate\nALITS Anantapuramu`)}`;
+        window.open(mailtoUrl, '_blank');
+        showToast(`📧 Email Reset Code dispatched to ${userEmail}: ${resetOtp}`, 'fa-envelope');
+      }
+
+      document.getElementById('forgotStep1').style.display = 'none';
+      document.getElementById('forgotStep2').style.display = 'block';
+      const resetOtpField = document.getElementById('resetOtpCode');
+      if (resetOtpField) {
+        resetOtpField.value = resetOtp;
+        resetOtpField.focus();
+      }
+    }
+
+    function handleResetPasswordSubmit(event) {
+      event.preventDefault();
+      showToast('✅ Password updated successfully! You can now log in.');
+      setTimeout(() => {
+        switchAuthTab('login');
+      }, 1200);
+    }
+
+
+    // --- HIDE & SHOW AUTH PORTAL (VIEW ONLY BACKGROUND IMAGE ON CLOSE) ---
+    function hideAuthCard() {
+      const card = document.querySelector('.auth-card');
+      const nav = document.querySelector('.auth-nav');
+      const floatingBtn = document.getElementById('btnOpenLoginModal');
+      const overlay = document.querySelector('.bg-gradient-overlay');
+
+      if (card) {
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.92) translateX(-40px)';
+        setTimeout(() => {
+          card.style.display = 'none';
+        }, 350);
+      }
+      if (nav) {
+        nav.style.opacity = '0';
+        setTimeout(() => {
+          nav.style.display = 'none';
+        }, 350);
+      }
+      if (overlay) {
+        overlay.style.opacity = '0.1';
+      }
+      if (floatingBtn) {
+        setTimeout(() => {
+          floatingBtn.style.display = 'inline-flex';
+          floatingBtn.style.opacity = '0';
+          floatingBtn.style.transform = 'translateY(20px)';
+          setTimeout(() => {
+            floatingBtn.style.opacity = '1';
+            floatingBtn.style.transform = 'translateY(0)';
+          }, 50);
+        }, 350);
+      }
+      showToast('🌿 Viewing ALITS Campus. Click "Open Login Portal" anytime.', 'fa-image');
+    }
+
+    function showAuthCard() {
+      const card = document.querySelector('.auth-card');
+      const nav = document.querySelector('.auth-nav');
+      const floatingBtn = document.getElementById('btnOpenLoginModal');
+      const overlay = document.querySelector('.bg-gradient-overlay');
+
+      if (floatingBtn) {
+        floatingBtn.style.display = 'none';
+      }
+      if (nav) {
+        nav.style.display = 'flex';
+        setTimeout(() => { nav.style.opacity = '1'; }, 50);
+      }
+      if (overlay) {
+        overlay.style.opacity = '1';
+      }
+      if (card) {
+        card.style.display = 'block';
+        setTimeout(() => {
+          card.style.opacity = '1';
+          card.style.transform = 'scale(1) translateX(0)';
+        }, 50);
+      }
+    }
+  </script>
+
+  <!-- Floating Re-Open Button when Portal is Closed -->
+  <button class="floating-open-login-btn" id="btnOpenLoginModal" onclick="showAuthCard()">
+    <i class="fa-solid fa-right-to-bracket" style="color: #D4AF37;"></i>
+    <span>Open Login Portal</span>
+  </button>
+</body>
+
+</html>

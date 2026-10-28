@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALITS Faculty Directorate Portal | Anantha Lakshmi Institute of Tech & Sciences</title>
+
+  <!-- FontAwesome Icons & Stylesheet -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Central Auth Guard & Route Protection -->
+  <script src="../js/auth-guard.js"></script>
+</head>
+
+<body>
+
+  <!-- FACULTY PORTAL HEADER -->
+  <header class="faculty-header">
+    <div class="header-top">
+      <a href="index.html" class="brand-section">
+        <img src="../images/alits_college_crest_logo.png" alt="ALITS Crest" class="brand-logo-crest"
+          onerror="this.src='../assets/alits_logo.png'" />
+        <div>
+          <div class="brand-title">ALITS FACULTY DIRECTORATE PORTAL</div>
+          <div class="brand-tagline">Academic Staff & Teaching Directorate (Autonomous)</div>
+        </div>
+      </a>
+
+      <!-- Quick Portal Access & Actions -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="../auth.html?portal=management" class="btn-portal-pill" style="text-decoration: none; color: #fff;">
+          <i class="fa-solid fa-gauge-high"></i> Main ERP
+        </a>
+        <a href="../auth.html?portal=student" class="btn-portal-pill" style="text-decoration: none; color: #fff;">
+          <i class="fa-solid fa-user-graduate"></i> Student Portal
+        </a>
+
+        <button class="btn-theme-toggle" onclick="toggleFacultyTheme()" title="Toggle Dark/Light Mode">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+
+        <button class="btn-portal-pill" style="background: rgba(220, 38, 38, 0.25); border-color: #ef4444; color: #ff8888;"
+          onclick="performFacultyLogout()">
+          <i class="fa-solid fa-power-off"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- FACULTY HERO PROFILE BAR -->
+    <div class="faculty-hero-bar">
+      <div class="faculty-profile-summary">
+        <div class="faculty-avatar" id="hdrFacultyAvatar">MJ</div>
+        <div class="faculty-meta">
+          <h2 id="hdrFacultyName">MS. A. Manjula, M.Tech, (Ph.D.)</h2>
+          <div class="faculty-meta-tags">
+            <span class="meta-chip" id="hdrFacultyId">AL00456</span>
+            <span style="color: rgba(255,255,255,0.8);" id="hdrFacultyDesig">Assistant Professor & Class Mentor / In-Charge (III Year CSE-D)</span>
+            <span style="color: var(--gold-light);">•</span>
+            <span style="color: var(--gold-light); font-weight: 600;" id="hdrFacultyDept">Computer Science &
+              Engineering</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="faculty-quick-kpis">
+        <div class="quick-kpi">
+          <div class="quick-kpi-val" id="kpiClassesVal">4 Courses</div>
+          <div class="quick-kpi-lbl">Assigned Courses</div>
+        </div>
+        <div class="quick-kpi">
+          <div class="quick-kpi-val" id="kpiStudentsVal">186 Active</div>
+          <div class="quick-kpi-lbl">Enrolled Students</div>
+        </div>
+        <div class="quick-kpi">
+          <div class="quick-kpi-val" id="kpiClVal" style="color: var(--gold);">8 Days</div>
+          <div class="quick-kpi-lbl">Casual Leave Bal.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="faculty-nav-tabs">
+      <button class="tab-btn active" data-tab="students" onclick="switchFacultyTab('students')">
+        <i class="fa-solid fa-user-graduate"></i> Students List
+      </button>
+      <button class="tab-btn" data-tab="attendance" onclick="switchFacultyTab('attendance')">
+        <i class="fa-solid fa-clipboard-user"></i> Live Attendance
+      </button>
+      <button class="tab-btn" data-tab="approvals" onclick="switchFacultyTab('approvals')">
+        <i class="fa-solid fa-stamp" style="color: #D4AF37;"></i> Approval List
+        <span class="badge" id="navApprovalsCountBadge" style="background: rgba(212, 175, 55, 0.2); color: #D4AF37; border: 1px solid #D4AF37; font-size: 10px; padding: 2px 6px; margin-left: 6px; border-radius: 9999px;">0</span>
+      </button>
+      <button class="tab-btn" data-tab="leaves" onclick="switchFacultyTab('leaves')">
+        <i class="fa-solid fa-envelope-open-text"></i> Leave Permission
+      </button>
+      <button class="tab-btn" data-tab="assignments" onclick="switchFacultyTab('assignments')">
+        <i class="fa-solid fa-list-check"></i> Assignments & Submissions
+      </button>
+      <button class="tab-btn" data-tab="notes" onclick="switchFacultyTab('notes')">
+        <i class="fa-solid fa-book-open-reader"></i> Subject Notes & Materials
+      </button>
+      <button class="tab-btn" data-tab="timetable" onclick="switchFacultyTab('timetable')">
+        <i class="fa-solid fa-calendar-week"></i> My Timetable
+      </button>
+      <button class="tab-btn" data-tab="reports" onclick="switchFacultyTab('reports')">
+        <i class="fa-solid fa-chart-pie" style="color: #10B981;"></i> Faculty Reports
+      </button>
+      <button class="tab-btn" data-tab="profile" onclick="switchFacultyTab('profile')">
+        <i class="fa-solid fa-id-card-clip"></i> Faculty Profile
+      </button>
+    </nav>
+  </header>
+
+
+
+  <!-- MAIN FACULTY CONTENT CONTAINER -->
+  <main class="faculty-container" id="facultyTabContent">
+    <!-- Dynamically rendered by faculty/app.js -->
+  </main>
+
+  <!-- MODAL DIALOG -->
+  <div class="modal-backdrop" id="facultyModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle">Modal Dialog</h3>
+        <button class="modal-close-btn" onclick="closeFacultyModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-container" id="facultyToastContainer"></div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script src="../js/data.js"></script>
+  <script src="../js/backend-sync.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
