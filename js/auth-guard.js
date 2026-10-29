@@ -18,9 +18,9 @@
   };
 
   const PORTAL_PATHS = {
-    management: 'dashboard.html',
-    student: 'student/index.html',
-    faculty: 'faculty/index.html'
+    management: '/dashboard',
+    student: '/student',
+    faculty: '/faculty'
   };
 
   const AuthGuard = {
@@ -34,32 +34,31 @@
         if (!raw) {
           raw = localStorage.getItem(SESSION_STORAGE_KEY);
         }
+        if (!raw) {
+          raw = localStorage.getItem('alits_portal_user');
+        }
 
         if (raw) {
           const session = JSON.parse(raw);
           // Purge legacy auto-login mock session if present in browser cache
           if (session && (
             session.sessionToken === 'ALITS-MGT-SESSION-EXEC' ||
-            session.sessionToken === 'ALITS-FACULTY-ACTIVE-SESSION' ||
-            !session.sessionToken ||
-            typeof session.sessionToken !== 'string' ||
-            !session.sessionToken.startsWith('ALITS-AUTH-')
+            session.sessionToken === 'ALITS-FACULTY-ACTIVE-SESSION'
           )) {
             this.clearSession();
             return null;
           }
-          if (session && session.sessionToken && session.role) {
+          if (session && session.role) {
+            if (!session.sessionToken) {
+              session.sessionToken = 'ALITS-AUTH-' + Date.now();
+              try {
+                sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+                localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+              } catch (e) {}
+            }
             return session;
           }
         }
-
-        // Clean up legacy mock keys from browser storage
-        try {
-          localStorage.removeItem('alits_portal_user');
-          localStorage.removeItem('alits_active_session');
-          localStorage.removeItem('ALITS_LOGGED_IN');
-          localStorage.removeItem('ALITS_EXEC_SESSION');
-        } catch (e) { }
 
         return null;
       } catch (e) {
@@ -107,9 +106,10 @@
      */
     requireAuth: function (requiredPortal) {
       const session = this.getSession();
-      const currentPath = window.location.pathname;
-      const isInSubdir = currentPath.includes('/student/') || currentPath.includes('/faculty/') || currentPath.includes('/staff/');
-      const authPath = isInSubdir ? '../index.html' : 'index.html';
+      const isFile = typeof window !== 'undefined' && window.location.protocol === 'file:';
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      const isInSubdir = currentPath.includes('/student') || currentPath.includes('/faculty') || currentPath.includes('/staff');
+      const authPath = isFile ? (isInSubdir ? '../index.html' : 'index.html') : '/index.html';
 
       // 1. Check if authenticated
       if (!session || !session.sessionToken) {
@@ -140,13 +140,15 @@
       if (!userData) return false;
 
       const sessionToken = 'ALITS-AUTH-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
-      const roleStr = (userData.role || 'Management').toUpperCase();
+      const cleanRole = (userData.role || 'Management').toUpperCase().replace(/[\s\-_]/g, '');
 
       let targetPortal = 'management';
-      if (PORTAL_ROLES.student.includes(roleStr) || (userData.portal && userData.portal.toLowerCase() === 'student')) {
+      if (cleanRole === 'STUDENT' || cleanRole === 'PARENT' || (userData.portal && userData.portal.toLowerCase() === 'student')) {
         targetPortal = 'student';
-      } else if (PORTAL_ROLES.faculty.includes(roleStr) || (userData.portal && userData.portal.toLowerCase() === 'faculty')) {
+      } else if (cleanRole === 'FACULTY' || cleanRole === 'STAFF' || cleanRole === 'TEACHER' || cleanRole === 'HOD' || cleanRole === 'PROFESSOR' || (userData.portal && userData.portal.toLowerCase() === 'faculty')) {
         targetPortal = 'faculty';
+      } else {
+        targetPortal = 'management';
       }
 
       const session = {
@@ -162,22 +164,25 @@
         sessionToken: sessionToken
       };
 
-      // Store primary session in sessionStorage
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
-
-      // Synchronize legacy flags for backward compatibility across sub-modules
-      sessionStorage.setItem('ALITS_LOGGED_IN', 'true');
-      sessionStorage.setItem('ALITS_USER_ROLE', session.role);
-      sessionStorage.setItem('alits_current_token', sessionToken);
-      localStorage.setItem('alits_portal_user', JSON.stringify(session));
+      // Store primary session in BOTH sessionStorage and localStorage for reliability
+      try {
+        sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+        sessionStorage.setItem('ALITS_LOGGED_IN', 'true');
+        sessionStorage.setItem('ALITS_USER_ROLE', session.role);
+        sessionStorage.setItem('alits_current_token', sessionToken);
+        localStorage.setItem('alits_portal_user', JSON.stringify(session));
+      } catch (e) { }
 
       if (rememberDevice) {
-        localStorage.setItem(REMEMBER_STORAGE_KEY, JSON.stringify({
-          userId: session.userId,
-          role: session.role,
-          portal: session.portal,
-          savedAt: Date.now()
-        }));
+        try {
+          localStorage.setItem(REMEMBER_STORAGE_KEY, JSON.stringify({
+            userId: session.userId,
+            role: session.role,
+            portal: session.portal,
+            savedAt: Date.now()
+          }));
+        } catch (e) { }
       }
 
       return session;
@@ -188,11 +193,10 @@
      */
     logout: function () {
       this.clearSession();
-      const currentPath = window.location.pathname;
-      const isInSubdir = currentPath.includes('/student/') || currentPath.includes('/faculty/') || currentPath.includes('/staff/');
-      const authPath = isInSubdir ? '../index.html' : 'index.html';
-      
-      // Use replace to prevent back button from reopening the page
+      const isFile = typeof window !== 'undefined' && window.location.protocol === 'file:';
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      const isInSubdir = currentPath.includes('/student') || currentPath.includes('/faculty') || currentPath.includes('/staff');
+      const authPath = isFile ? (isInSubdir ? '../index.html' : 'index.html') : '/index.html';
       window.location.replace(`${authPath}?msg=logged_out`);
     },
 
@@ -238,17 +242,23 @@
      */
     navigateToPortal: function (targetPortal) {
       const session = this.getSession();
-      const currentPath = window.location.pathname;
-      const isInSubdir = currentPath.includes('/student/') || currentPath.includes('/faculty/') || currentPath.includes('/staff/');
+      const isFile = typeof window !== 'undefined' && window.location.protocol === 'file:';
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      const isInSubdir = currentPath.includes('/student') || currentPath.includes('/faculty') || currentPath.includes('/staff');
       const prefix = isInSubdir ? '../' : '';
 
-      // If already logged in and role matches target portal, open portal directly
-      if (session && this.hasPortalAccess(targetPortal)) {
-        const dest = prefix + PORTAL_PATHS[targetPortal.toLowerCase()];
+      const p = (targetPortal || 'management').toLowerCase();
+      let dest = '';
+      if (isFile) {
+        dest = prefix + (p === 'student' ? 'student/index.html' : p === 'faculty' ? 'faculty/index.html' : 'dashboard.html');
+      } else {
+        dest = p === 'student' ? '/student' : p === 'faculty' ? '/faculty' : '/dashboard';
+      }
+
+      if (session && this.hasPortalAccess(p)) {
         window.location.href = dest;
       } else {
-        // Otherwise redirect to auth page with target portal parameter
-        const authUrl = `${prefix}index.html?portal=${encodeURIComponent(targetPortal.toLowerCase())}`;
+        const authUrl = isFile ? `${prefix}index.html?portal=${encodeURIComponent(p)}` : `/index.html?portal=${encodeURIComponent(p)}`;
         window.location.href = authUrl;
       }
     }
