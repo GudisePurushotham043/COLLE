@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "cleanUrls": true,
   "rewrites": [
     { "source": "/student", "destination": "/student.html" },
     { "source": "/student/", "destination": "/student.html" },
@@ -9,7 +8,9 @@
     { "source": "/staff", "destination": "/faculty.html" },
     { "source": "/staff/", "destination": "/faculty.html" },
     { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/dashboard/", "destination": "/dashboard.html" },
     { "source": "/auth", "destination": "/index.html" },
-    { "source": "/auth.html", "destination": "/index.html" }
+    { "source": "/auth.html", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" }
   ]
 }
