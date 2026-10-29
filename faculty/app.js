@@ -4,7 +4,7 @@
    ========================================================================== */
 
 // --- FACULTY REPOSITORY ---
-const FACULTY_DATABASE = {
+var FACULTY_DATABASE = window.FACULTY_DATABASE || {
   'AL00456': {
     id: 'AL00456',
     name: 'MS. A. Manjula, M.Tech, (Ph.D.)',
@@ -96,7 +96,7 @@ const FACULTY_DATABASE = {
 };
 
 // Centralized ERP State & Shared Data Source
-let facultyState = { students: [], faculty: [], assignments: [], notices: [], submittedAssignments: [] };
+var facultyState = window.facultyState || { students: [], faculty: [], assignments: [], notices: [], submittedAssignments: [] };
 try {
   const rawERP = localStorage.getItem('ALITS_ERP_STATE');
   if (rawERP) {
@@ -227,9 +227,12 @@ window.addEventListener('alits_data_sync', (e) => {
   }
 });
 
-let currentFaculty = null;
-let currentFacultyTab = 'students';
-let activeLiveRoster = [];
+var currentFaculty = window.currentFaculty || null;
+var currentFacultyTab = window.currentFacultyTab || 'students';
+var activeLiveRoster = window.activeLiveRoster || [];
+window.FACULTY_DATABASE = FACULTY_DATABASE;
+window.currentFaculty = currentFaculty;
+window.currentFacultyTab = currentFacultyTab;
 
 function getRelevantPendingApprovalsCount() {
   const f = currentFaculty || (typeof AuthGuard !== 'undefined' ? AuthGuard.getSession() : null);

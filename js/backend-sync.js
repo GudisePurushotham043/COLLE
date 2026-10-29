@@ -7,10 +7,16 @@
 (function () {
     'use strict';
 
+    const isLocal = typeof window !== 'undefined' && (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.protocol === 'file:'
+    );
+
     const API_BASE = (window.location.protocol === 'http:' || window.location.protocol === 'https:')
         && window.location.port === '5000'
         ? '/api'
-        : 'http://localhost:5000/api';
+        : (isLocal ? 'http://localhost:5000/api' : '/api');
 
     const BackendSync = {
         isConnected: false,
@@ -22,12 +28,25 @@
         lastSyncTime: null,
         recentTicks: [],
 
+        getState() {
+            try {
+                const raw = localStorage.getItem('ALITS_ERP_STATE');
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        },
+
         init() {
             this.injectTopBarPill();
             this.injectToastContainer();
-            this.checkConnectionAndBootstrap();
-            this.connectSSE();
-            this.startHeartbeatPolling();
+            if (isLocal || window.location.port === '5000') {
+                this.checkConnectionAndBootstrap();
+                this.connectSSE();
+                this.startHeartbeatPolling();
+            } else {
+                this.setDisconnected();
+            }
 
             console.log('[BackendSync] Initialized with API Base:', API_BASE);
         },
