@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALITS Student Portal | Anantha Lakshmi Institute of Technology & Sciences</title>
+
+  <!-- FontAwesome Icons & Stylesheet -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="student/styles.css" />
+
+  <!-- Central Auth Guard & Route Protection -->
+  <script src="js/auth-guard.js"></script>
+  <script>
+    if (typeof AuthGuard !== 'undefined') {
+      if (!AuthGuard.requireAuth('student')) {
+        document.documentElement.style.display = 'none';
+      }
+    }
+  </script>
+</head>
+
+<body>
+
+  <!-- STUDENT PORTAL MAIN HEADER -->
+  <header class="student-header">
+    <div class="header-top">
+      <a href="student.html" class="brand-section">
+        <img src="images/alits_college_crest_logo.png" alt="ALITS Crest" class="brand-logo-crest"
+          onerror="this.src='assets/alits_logo.png'" />
+        <div>
+          <div class="brand-title">ALITS STUDENT PORTAL</div>
+          <div class="brand-tagline">Anantha Lakshmi Institute of Technology & Sciences (Autonomous)</div>
+        </div>
+      </a>
+
+      <!-- Quick Portal Access & Actions -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="dashboard.html" class="btn-portal-pill" style="text-decoration: none; color: #fff;">
+          <i class="fa-solid fa-gauge-high"></i> Main ERP
+        </a>
+        <a href="faculty.html" class="btn-portal-pill" style="text-decoration: none; color: #fff;">
+          <i class="fa-solid fa-chalkboard-user"></i> Faculty Portal
+        </a>
+
+        <button class="btn-theme-toggle" onclick="toggleStudentTheme()" title="Toggle Dark/Light Mode">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+
+        <button class="btn-portal-pill"
+          style="background: rgba(220, 38, 38, 0.25); border-color: #ef4444; color: #ff8888;"
+          onclick="performStudentLogout()">
+          <i class="fa-solid fa-power-off"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- STUDENT HERO BAR (SHOWS ISOLATED LOGGED IN STUDENT DATA) -->
+    <div class="student-hero-bar">
+      <div class="student-profile-summary">
+        <div class="student-avatar" id="hdrStudentAvatar">GT</div>
+        <div class="student-meta">
+          <h2 id="hdrStudentName">Gulagani Tirumalaiah</h2>
+          <div class="student-meta-tags">
+            <span class="meta-chip" id="hdrStudentRoll">242G1A05O1</span>
+            <span style="color: rgba(255,255,255,0.8);" id="hdrStudentBranch">B.Tech - CSE</span>
+            <span style="color: var(--gold-light);">•</span>
+            <span style="color: var(--gold-light); font-weight: 600;" id="hdrStudentSem">III Year I Sem (3-1)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="student-quick-kpis">
+        <div class="quick-kpi">
+          <div class="quick-kpi-val" id="kpiAttendanceVal">88.5%</div>
+          <div class="quick-kpi-lbl">Live Attendance</div>
+        </div>
+        <div class="quick-kpi">
+          <div class="quick-kpi-val" id="kpiCgpaVal">8.75</div>
+          <div class="quick-kpi-lbl">CGPA (R24)</div>
+        </div>
+        <div class="quick-kpi">
+          <div class="quick-kpi-val" id="kpiFeeVal" style="color: #F87171;">₹12,500</div>
+          <div class="quick-kpi-lbl">Fee Status</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="student-nav-tabs">
+      <button class="tab-btn active" data-tab="dashboard" onclick="switchStudentTab('dashboard')">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
+      </button>
+      <button class="tab-btn" data-tab="attendance" onclick="switchStudentTab('attendance')">
+        <i class="fa-solid fa-calendar-check"></i> Attendance & Leave
+      </button>
+      <button class="tab-btn" data-tab="academics" onclick="switchStudentTab('academics')">
+        <i class="fa-solid fa-graduation-cap"></i> Academics & Results
+      </button>
+      <button class="tab-btn" data-tab="subjects" onclick="switchStudentTab('subjects')">
+        <i class="fa-solid fa-book-bookmark"></i> Subjects & Notes
+      </button>
+      <button class="tab-btn" data-tab="assignments" onclick="switchStudentTab('assignments')">
+        <i class="fa-solid fa-list-check"></i> Assignments
+      </button>
+      <button class="tab-btn" data-tab="timetable" onclick="switchStudentTab('timetable')">
+        <i class="fa-solid fa-clock"></i> Time Table
+      </button>
+      <button class="tab-btn" data-tab="fees" onclick="switchStudentTab('fees')">
+        <i class="fa-solid fa-receipt"></i> Fee Details
+      </button>
+      <button class="tab-btn" data-tab="profile" onclick="switchStudentTab('profile')">
+        <i class="fa-solid fa-user-gear"></i> Profile & Proctor
+      </button>
+    </nav>
+  </header>
+
+  <!-- MAIN STUDENT CONTENT CONTAINER -->
+  <main class="student-container" id="studentTabContent">
+    <!-- Dynamically rendered by student/app.js -->
+  </main>
+
+  <!-- MODAL DIALOG -->
+  <div class="modal-backdrop" id="studentModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle">Modal Dialog</h3>
+        <button class="modal-close-btn" onclick="closeStudentModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-container" id="studentToastContainer"></div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script src="js/backend-sync.js"></script>
+  <script src="student/app.js"></script>
+</body>
+
+</html>

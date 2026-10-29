@@ -18,9 +18,9 @@
   };
 
   const PORTAL_PATHS = {
-    management: '/dashboard',
-    student: '/student',
-    faculty: '/faculty'
+    management: 'dashboard.html',
+    student: 'student.html',
+    faculty: 'faculty.html'
   };
 
   const AuthGuard = {
@@ -248,12 +248,7 @@
       const prefix = isInSubdir ? '../' : '';
 
       const p = (targetPortal || 'management').toLowerCase();
-      let dest = '';
-      if (isFile) {
-        dest = prefix + (p === 'student' ? 'student/index.html' : p === 'faculty' ? 'faculty/index.html' : 'dashboard.html');
-      } else {
-        dest = p === 'student' ? '/student' : p === 'faculty' ? '/faculty' : '/dashboard';
-      }
+      const dest = prefix + (p === 'student' ? 'student.html' : p === 'faculty' ? 'faculty.html' : 'dashboard.html');
 
       if (session && this.hasPortalAccess(p)) {
         window.location.href = dest;

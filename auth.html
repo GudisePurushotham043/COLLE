@@ -4344,13 +4344,12 @@
             if (window.AuthGuard) {
               window.AuthGuard.login(data.session, remember);
             }
-            const isFileProtocol = window.location.protocol === 'file:';
             const portal = (data.session.portal || 'management').toLowerCase();
             const destUrl = portal === 'student'
-              ? (isFileProtocol ? 'student/index.html' : '/student')
+              ? 'student.html'
               : portal === 'faculty'
-              ? (isFileProtocol ? 'faculty/index.html' : '/faculty')
-              : (isFileProtocol ? 'dashboard.html' : '/dashboard');
+              ? 'faculty.html'
+              : 'dashboard.html';
 
             setTimeout(() => {
               window.location.replace(destUrl);
@@ -4457,14 +4456,13 @@
 
       showToast(`✓ Welcome, ${matchedUser.name}! Opening ${destPortal.toUpperCase()} Portal...`, 'fa-circle-check');
 
-      const isFileProtocol = window.location.protocol === 'file:';
       let destUrl = '';
       if (destPortal === 'student') {
-        destUrl = isFileProtocol ? 'student/index.html' : '/student';
+        destUrl = 'student.html';
       } else if (destPortal === 'faculty') {
-        destUrl = isFileProtocol ? 'faculty/index.html' : '/faculty';
+        destUrl = 'faculty.html';
       } else {
-        destUrl = isFileProtocol ? 'dashboard.html' : '/dashboard';
+        destUrl = 'dashboard.html';
       }
 
       setTimeout(() => {
